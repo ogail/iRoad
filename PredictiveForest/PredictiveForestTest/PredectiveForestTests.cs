@@ -86,7 +86,18 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                         node.AddChild(new TreeNode { Id = id, DistanceToRoot = distance, Parent = node });
                     }
                     Assert.True(!string.IsNullOrEmpty(currentForest));
-                    generatedTrees[currentForest].Add(node.Id, node);
+                    TreeNode parent = generatedTrees[currentForest].Values.FirstOrDefault(n => n.Children.Any(c => c.Id == node.Id));
+
+                    if (parent == null)
+                    {
+                        generatedTrees[currentForest].Add(node.Id, node);
+                    }
+                    else
+                    {
+                        node.Parent = parent;
+                        Assert.Equal(1, parent.Children.RemoveAll(n => n.Id == node.Id));
+                        parent.AddChild(node);
+                    }
                 }
             }
         }
@@ -95,6 +106,13 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
         {
             Assert.Equal(list.Count, children.Length);
             Assert.True(children.ToList().TrueForAll(n => list.Any(t => t.Id == n)));
+
+            if (list.Count > 0)
+            {
+                // Assert probabilities
+                double parentProbability = list[0].Parent == null ? 1.0 : list[0].Parent.Probability;
+                Assert.True(list.All(n => n.Probability == parentProbability / children.Length));
+            }
         }
 
         [Fact]
@@ -121,6 +139,32 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             AssertHasIds(pForest.Roots, 0, 1);
             AssertHasIds(pForest[0].Children, 3);
             AssertHasIds(pForest[1].Children, 2, 4);
+        }
+
+        [Fact]
+        public void AssignsProbabilitiesCorrectlyTest()
+        {
+            List<RoadNetworkNode> roots1 = new List<RoadNetworkNode>
+            {
+                new RoadNetworkNode(0, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(1, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(2, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(3, It.IsAny<double>(), It.IsAny<double>())
+            };
+            Region region1 = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()));
+            RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
+            mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
+            currentTest = "medium forest 2";
+            pForest.Predict(region1);
+
+            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
+            AssertHasIds(pForest[0].Children, 4, 5);
+            AssertHasIds(pForest[1].Children, 6);
+            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
+            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertHasIds(pForest[6].Children, 14, 15);
+            AssertHasIds(pForest[13].Children, 16);
         }
 
         [Fact]

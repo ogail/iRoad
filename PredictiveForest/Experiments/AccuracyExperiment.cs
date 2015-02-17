@@ -35,20 +35,31 @@ namespace QueryProcessing.DataStructures.Experiments
             foreach (string line in lines)
             {
                 string[] splitted = line.Split(',');
-                if (counter == 0)
-                {
-                    forest = new PredictiveForest(RoadNetwork, Constants.timeRange, Constants.probabilityThreshold);
-                }
 
+                // TODO: Remove after getting this experiment to work.
                 if (int.Parse(splitted[0]) > 5)
                 {
                     break;
                 }
 
                 Region region = new Region(new Coordinates(double.Parse(splitted[1]), double.Parse(splitted[2])));
-                probabilities[counter++].Add(forest.First(n => n.Node.Location.Equals(region.Center)).Probability);
                 forest.Predict(region);
-                counter %= Steps;
+                TreeNode predicted = forest.GetNode(RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude).Id);
+                if (predicted != null)
+                {
+                    probabilities[counter++].Add(predicted.Probability);
+                    counter %= Steps;
+
+                    if (counter == 0)
+                    {
+                        forest.Clear();
+                    }
+                }
+                else
+                {
+                    forest.Clear();
+                    counter = 0;
+                }
             }
 
             foreach (var pair in probabilities)

@@ -51,8 +51,14 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         public double TimeRange { get; private set; }
 
+        /// <summary>
+        /// The probability threshold used.
+        /// </summary>
         public double ProbabilityThreshold { get; private set; }
 
+        /// <summary>
+        /// Build a tree for a given road network node.
+        /// </summary>
         public Func<RoadNetworks, RoadNetworkNode, double, double, TreeNode> TreeBuilder { get; set; }
 
         /// <summary>
@@ -69,7 +75,7 @@ namespace QueryProcessing.DataStructures
             this.forest = new Dictionary<int, TreeNode>();
             this.TimeRange = timeRange;
             this.ProbabilityThreshold = probabilityThreshold;
-            TreeBuilder = (rn, n, r, p) =>
+            this.TreeBuilder = (rn, n, r, p) =>
             {
                 PredectiveTree pTree = new PredectiveTree(RoadNetwork, n, TimeRange, ProbabilityThreshold);
                 pTree.BuildTree();
@@ -78,56 +84,31 @@ namespace QueryProcessing.DataStructures
             };
         }
 
-        public void Predict(Region region)
-        {
-            this.Region = region;
-            List<RoadNetworkNode> nodes = GetRegionNodes(region);
-
-            if (forest.Count == 0 || nodes.Where(n => forest.ContainsKey(n.Id)).Count() == 0)
-            {
-                Build(nodes);
-            }
-            else
-            {
-                // This will remove nodes that are outside the region
-                nodes = nodes.Where(n => forest.ContainsKey(n.Id)).ToList();
-                Update(nodes);
-            }
-
-            ProbabilityExpansion();
-        }
-
-        public TreeNode this[int key]
-        {
-            get { return forest[key]; }
-            set { forest[key] = value; }
-        }
-
-        private void ProbabilityExpansion()
+        /// <summary>
+        /// Assigns the probability for all forest nodes.
+        /// </summary>
+        private void ProbabilityAssignment()
         {
             foreach (TreeNode root in Roots)
             {
-                TreeNode ti = forest[root.Id];
-                ti.Probability = 1.0;
-                int degree = ti.Children.Count;
-                Queue<TreeNode> queue = new Queue<TreeNode>();
-                queue.Enqueue(ti);
-                while (queue.Count > 0)
+                TraverseSubtree(forest[root.Id], n =>
                 {
-                    TreeNode dqitem = queue.Dequeue();
-                    degree = dqitem.Children.Count;
-                    for (int i = 0; i < dqitem.Children.Count; i++)
+                    if (forest[n].Parent != null)
                     {
-                        TreeNode iqitem = dqitem.Children.ElementAt(i);
-                        iqitem.Probability = dqitem.Probability / degree;
-                        {
-                            queue.Enqueue(iqitem);
-                        }
+                        forest[n].Probability = forest[n].Parent.Probability / forest[n].Parent.Children.Count;
                     }
-                }
+                    else
+                    {
+                        forest[n].Probability = 1.0 / (double)Roots.Count;
+                    }
+                });
             }
         }
 
+        /// <summary>
+        /// Updates the forest with the given root nodes.
+        /// </summary>
+        /// <param name="roots">The new roots for the forest.</param>
         private void Update(List<RoadNetworkNode> roots)
         {
             HashSet<int> included = new HashSet<int>();
@@ -168,6 +149,10 @@ namespace QueryProcessing.DataStructures
             Debug.Assert(roots.TrueForAll(r => Roots.Any(n => n.Id == r.Id)));
         }
 
+        /// <summary>
+        /// Builds a predictive forest from the given roots.
+        /// </summary>
+        /// <param name="roots">The roots for the forest.</param>
         private void Build(List<RoadNetworkNode> roots)
         {
             forest.Keys.ToList().ForEach(id => execluded.Add(id));
@@ -211,10 +196,15 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        private void TraverseSubtree(TreeNode node, Action<int> action)
+        /// <summary>
+        /// Traverses the subtree of the given node using a BFS algorithm.
+        /// </summary>
+        /// <param name="subtreeRoot">The subtree root node</param>
+        /// <param name="action">Custom action to apply for every node in the subtree.</param>
+        private void TraverseSubtree(TreeNode subtreeRoot, Action<int> action)
         {
             Queue<int> current = new Queue<int>();
-            current.Enqueue(node.Id);
+            current.Enqueue(subtreeRoot.Id);
             while (current.Count != 0)
             {
                 int id = current.Dequeue();
@@ -223,11 +213,17 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        private List<int> RemoveSubtree(TreeNode node, Predicate<int> condition)
+        /// <summary>
+        /// Removes a subtree starting from the passed root node.
+        /// </summary>
+        /// <param name="subtreeRoot">The subtree root node</param>
+        /// <param name="condition">The remove condition which if true the node will be removed.</param>
+        /// <returns></returns>
+        private List<int> RemoveSubtree(TreeNode subtreeRoot, Predicate<int> condition)
         {
             Stack<int> subtree = new Stack<int>();
             List<int> removedIds = new List<int>();
-            TraverseSubtree(node, id =>
+            TraverseSubtree(subtreeRoot, id =>
                 {
                     if (condition(id))
                     {
@@ -246,6 +242,10 @@ namespace QueryProcessing.DataStructures
             return removedIds;
         }
 
+        /// <summary>
+        /// Removes a single node from the forest.
+        /// </summary>
+        /// <param name="node">The node to remove.</param>
         private void RemoveNode(TreeNode node)
         {
             if (!Roots.Any(n => n.Id == node.Id))
@@ -260,6 +260,10 @@ namespace QueryProcessing.DataStructures
             forest.Remove(node.Id);
         }
 
+        /// <summary>
+        /// Adds a node to the forest.
+        /// </summary>
+        /// <param name="node">The node to add.</param>
         private void AddNode(TreeNode node)
         {
             Debug.Assert(!execluded.Contains(node.Id));
@@ -275,20 +279,94 @@ namespace QueryProcessing.DataStructures
             }
         }
 
+        /// <summary>
+        /// Gets the nodes in the given region.
+        /// </summary>
+        /// <param name="region">The region</param>
+        /// <returns>List of road network nodes in the specific region.</returns>
         private List<RoadNetworkNode> GetRegionNodes(DataStructures.Region region)
         {
             RoadNetworkNode centerNode = RoadNetwork.Nearest(Region.Center.Latitude, Region.Center.Longitude);
             return RoadNetwork.GetNeighbors(centerNode, region.Radius).Where(n => !execluded.Contains(n.Id)).ToList();
         }
 
+        /// <summary>
+        /// Gets the enumerator for the predictive forest.
+        /// </summary>
+        /// <returns>The IEnumerable object</returns>
         public IEnumerator<TreeNode> GetEnumerator()
         {
             return forest.Values.GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the enumerator for the predictive forest.
+        /// </summary>
+        /// <returns>The IEnumerable object</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        /// <summary>
+        /// Clears the current contents of the forest.
+        /// </summary>
+        public void Clear()
+        {
+            this.forest.Clear();
+            this.execluded.Clear();
+            this.Region = null;
+        }
+
+        /// <summary>
+        /// Predicts the next steps for the given region.
+        /// </summary>
+        /// <param name="region">The region to predict for.</param>
+        public void Predict(Region region)
+        {
+            this.Region = region;
+            List<RoadNetworkNode> nodes = GetRegionNodes(region);
+
+            if (forest.Count == 0 || nodes.Where(n => forest.ContainsKey(n.Id)).Count() == 0)
+            {
+                Build(nodes);
+            }
+            else
+            {
+                // This will remove nodes that are outside the region
+                nodes = nodes.Where(n => forest.ContainsKey(n.Id)).ToList();
+                Update(nodes);
+            }
+
+            ProbabilityAssignment();
+        }
+
+        /// <summary>
+        /// Indexer for the forest.
+        /// </summary>
+        /// <param name="key">The node id</param>
+        /// <returns>The node object</returns>
+        public TreeNode this[int key]
+        {
+            get { return forest[key]; }
+            set { forest[key] = value; }
+        }
+
+        /// <summary>
+        /// Gets node with id key and if not found returns null.
+        /// </summary>
+        /// <param name="key">The node id</param>
+        /// <returns>The node itself if the key is present in the forest, null otherwise</returns>
+        public TreeNode GetNode(int key)
+        {
+            if (forest.ContainsKey(key))
+            {
+                return forest[key];
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
