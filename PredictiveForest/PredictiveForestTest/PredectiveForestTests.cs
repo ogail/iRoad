@@ -196,8 +196,8 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "simple forest 2";
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 1);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertHasIds(pForest.Roots, 1, 6);
+            AssertHasIds(pForest[1].Children, 4, 5);
         }
 
         [Fact]

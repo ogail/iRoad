@@ -137,6 +137,14 @@ namespace QueryProcessing.DataStructures
             {
                 Debug.Assert(forest.ContainsKey(roadNode.Id));
                 TraverseSubtree(forest[roadNode.Id], id => included.Add(id));
+
+                TreeNode parent = forest[roadNode.Id].Parent;
+                if (parent != null)
+                {
+                    forest[parent.Id].RemoveChild(forest[roadNode.Id]);
+                    Debug.Assert(forest[roadNode.Id].Parent == null);
+                    Debug.Assert(forest[parent.Id].Children.TrueForAll(n => n.Id != roadNode.Id));
+                }
             }
 
             // Remove relation between included children nodes that have parents which will be excluded
@@ -157,8 +165,7 @@ namespace QueryProcessing.DataStructures
                 RemoveSubtree(root, n => !included.Contains(n)).ForEach(n => execluded.Add(n));
             }
 
-            // TO DO: handle case of child that has parent
-            //Debug.Assert(roots.TrueForAll(r => Roots.Any(n => n.Id == r.Id)));
+            Debug.Assert(roots.TrueForAll(r => Roots.Any(n => n.Id == r.Id)));
         }
 
         private void Build(List<RoadNetworkNode> roots)
