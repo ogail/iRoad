@@ -26,5 +26,14 @@ namespace QueryProcessing.DataStructures
         {
             return Latitude + "," + Longitude;
         }
+
+        public override bool Equals(object obj)
+        {
+            return (this.Latitude - ((Coordinates)obj).Latitude) < 1 &&
+                   (this.Longitude - ((Coordinates)obj).Longitude) < 1;
+
+            //return this.Latitude == ((Coordinates)obj).Latitude &&
+            //       this.Longitude == ((Coordinates)obj).Longitude;
+        }
     }
 }
