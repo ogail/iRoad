@@ -42,6 +42,14 @@ namespace QueryProcessing.DataStructures
             this.Children.Add(ti);
         }
 
+        public void RemoveChild(TreeNode ti)
+        {
+            Debug.Assert(ti.Parent != null && ti.Parent.Id == Id);
+            Debug.Assert(Children.Any(n => n.Id == ti.Id));
+            this.Children.Remove(ti);
+            ti.Parent = null;
+        }
+
         public override bool Equals(Object t)
         {
             return this.Id.Equals(((TreeNode)t).Id);

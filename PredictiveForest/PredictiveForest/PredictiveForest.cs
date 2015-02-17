@@ -83,23 +83,15 @@ namespace QueryProcessing.DataStructures
             this.Region = region;
             List<RoadNetworkNode> nodes = GetRegionNodes(region);
 
-            if (forest.Count == 0)
+            if (forest.Count == 0 || nodes.Where(n => forest.ContainsKey(n.Id)).Count() == 0)
             {
                 Build(nodes);
             }
             else
             {
-                // Remove all nodes that does not belong to the current forest
+                // This will remove nodes that are outside the region
                 nodes = nodes.Where(n => forest.ContainsKey(n.Id)).ToList();
-
-                if (nodes.Count == 0)
-                {
-                    Build(nodes);
-                }
-                else
-                {
-                    Update();
-                }
+                Update(nodes);
             }
 
             ProbabilityExpansion();
@@ -136,17 +128,50 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        private void Update()
+        private void Update(List<RoadNetworkNode> roots)
         {
-            throw new NotImplementedException();
+            HashSet<int> included = new HashSet<int>();
+
+            // Fetch the included nodes
+            foreach (RoadNetworkNode roadNode in roots)
+            {
+                Debug.Assert(forest.ContainsKey(roadNode.Id));
+                TraverseSubtree(forest[roadNode.Id], id => included.Add(id));
+            }
+
+            // Remove relation between included children nodes that have parents which will be excluded
+            foreach (int nodeId in included)
+            {
+                TreeNode parent = forest[nodeId].Parent;
+                if (parent != null && !included.Contains(parent.Id))
+                {
+                    forest[parent.Id].RemoveChild(forest[nodeId]);
+                    Debug.Assert(forest[nodeId].Parent == null);
+                    Debug.Assert(forest[parent.Id].Children.TrueForAll(n => n.Id != nodeId));
+                }
+            }
+            
+            // Remove all execluded nodes and add them to the exclude list.
+            foreach (TreeNode root in Roots)
+            {
+                RemoveSubtree(root, n => !included.Contains(n)).ForEach(n => execluded.Add(n));
+            }
+
+            // TO DO: handle case of child that has parent
+            //Debug.Assert(roots.TrueForAll(r => Roots.Any(n => n.Id == r.Id)));
         }
 
         private void Build(List<RoadNetworkNode> roots)
         {
+            forest.Keys.ToList().ForEach(id => execluded.Add(id));
+            forest.Clear();
+
             foreach (RoadNetworkNode root in roots)
             {
                 Queue<TreeNode> nodes = new Queue<TreeNode>();
-                nodes.Enqueue(TreeBuilder(RoadNetwork, root, TimeRange, ProbabilityThreshold));
+                TreeNode rootNode = TreeBuilder(RoadNetwork, root, TimeRange, ProbabilityThreshold);
+                Debug.Assert(rootNode.Parent == null);
+                nodes.Enqueue(rootNode);
 
                 while (nodes.Count != 0)
                 {
@@ -159,7 +184,7 @@ namespace QueryProcessing.DataStructures
 
                         if (exists && node.DistanceToRoot < forestNode.DistanceToRoot)
                         {
-                            RemoveSubtree(forestNode);
+                            RemoveSubtree(forestNode, r => true);
                             AddNode(node);
                             node.Children.ForEach(n => nodes.Enqueue(n));
                         }
@@ -179,17 +204,30 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        private void RemoveSubtree(TreeNode forestNode)
+        private void TraverseSubtree(TreeNode node, Action<int> action)
         {
-            Stack<int> subtree = new Stack<int>();
             Queue<int> current = new Queue<int>();
-            current.Enqueue(forestNode.Id);
+            current.Enqueue(node.Id);
             while (current.Count != 0)
             {
                 int id = current.Dequeue();
-                subtree.Push(id);
+                action(id);
                 forest[id].Children.ForEach(n => current.Enqueue(n.Id));
             }
+        }
+
+        private List<int> RemoveSubtree(TreeNode node, Predicate<int> condition)
+        {
+            Stack<int> subtree = new Stack<int>();
+            List<int> removedIds = new List<int>();
+            TraverseSubtree(node, id =>
+                {
+                    if (condition(id))
+                    {
+                        subtree.Push(id);
+                        removedIds.Add(id);
+                    }
+                });
 
             while (subtree.Count != 0)
             {
@@ -197,16 +235,22 @@ namespace QueryProcessing.DataStructures
                 Debug.Assert(forest.ContainsKey(id));
                 RemoveNode(forest[id]);
             }
+
+            return removedIds;
         }
 
         private void RemoveNode(TreeNode node)
         {
+            if (!Roots.Any(n => n.Id == node.Id))
+            {
+                Debug.Assert(forest.ContainsKey(node.Parent.Id));
+                int count = forest[node.Parent.Id].Children.RemoveAll(n => n.Equals(node));
+                Debug.Assert(count == 1);
+            }
+
             Debug.Assert(forest.ContainsKey(node.Id));
-            Debug.Assert(forest.ContainsKey(node.Parent.Id));
             Debug.Assert(forest[node.Id].Children.Count == 0);
             forest.Remove(node.Id);
-            int count = forest[node.Parent.Id].Children.RemoveAll(n => n.Equals(node));
-            Debug.Assert(count == 1);
         }
 
         private void AddNode(TreeNode node)
