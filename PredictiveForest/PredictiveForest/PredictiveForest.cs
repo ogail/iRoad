@@ -248,11 +248,11 @@ namespace QueryProcessing.DataStructures
         /// <param name="node">The node to remove.</param>
         private void RemoveNode(TreeNode node)
         {
-            if (!Roots.Any(n => n.Id == node.Id))
+            if (node.Parent != null)
             {
                 Debug.Assert(forest.ContainsKey(node.Parent.Id));
-                int count = forest[node.Parent.Id].Children.RemoveAll(n => n.Equals(node));
-                Debug.Assert(count == 1);
+                Debug.Assert(!Roots.Any(n => n.Id == node.Id));
+                forest[node.Parent.Id].RemoveChild(node);
             }
 
             Debug.Assert(forest.ContainsKey(node.Id));

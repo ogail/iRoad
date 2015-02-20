@@ -368,5 +368,58 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             AssertHasIds(pForest.Roots, 3);
             AssertHasIds(pForest[3].Children, 11, 12, 13);
         }
+
+        [Fact]
+        public void CalculatesAccuracyCorrectly()
+        {
+            List<RoadNetworkNode> roots1 = new List<RoadNetworkNode>
+            {
+                new RoadNetworkNode(0, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(1, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(2, It.IsAny<double>(), It.IsAny<double>()),
+                new RoadNetworkNode(3, It.IsAny<double>(), It.IsAny<double>())
+            };
+            List<RoadNetworkNode> roots2 = new List<RoadNetworkNode>
+            {
+                new RoadNetworkNode(6, It.IsAny<double>(), It.IsAny<double>())
+            };
+            List<RoadNetworkNode> roots3 = new List<RoadNetworkNode>
+            {
+                new RoadNetworkNode(14, It.IsAny<double>(), It.IsAny<double>())
+            };
+            Region region1 = new Region(new Coordinates(1, 1));
+            Region region2 = new Region(new Coordinates(2, 2));
+            Region region3 = new Region(new Coordinates(3, 3));
+            RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
+            RoadNetworkNode center2 = new RoadNetworkNode(0, region2.Center.Latitude, region2.Center.Longitude);
+            RoadNetworkNode center3 = new RoadNetworkNode(0, region3.Center.Latitude, region3.Center.Longitude);
+            mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
+            mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
+            mockRoadNetworks.Setup(m => m.Nearest(region3.Center.Latitude, region3.Center.Longitude)).Returns(center3);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center3, It.IsAny<double>())).Returns(roots3);
+            currentTest = "medium forest 2";
+
+            pForest.Predict(region1);
+
+            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
+            AssertHasIds(pForest[0].Children, 4, 5);
+            AssertHasIds(pForest[1].Children, 6);
+            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
+            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertHasIds(pForest[6].Children, 14, 15);
+            AssertHasIds(pForest[13].Children, 16);
+
+            pForest.Predict(region2);
+
+            AssertHasIds(pForest.Roots, 6);
+            AssertHasIds(pForest[6].Children, 14, 15);
+
+            pForest.Predict(region3);
+
+            AssertHasIds(pForest.Roots, 14);
+            AssertHasIds(pForest[14].Children);
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace QueryProcessing.DataStructures
         }
 
         public Region(Coordinates center) : 
-            this(center, 0.2)
+            this(center, 0.0)
         {
         }
     }

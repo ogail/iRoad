@@ -9,20 +9,17 @@ namespace QueryProcessing.DataStructures.Experiments
 {
     public class AccuracyExperiment : Experiment
     {
-        public string ObjectFile { get; private set; }
-
         public int Steps { get; set; }
 
-        public AccuracyExperiment(string dataDirectory, string objectFile, int steps) :
-            base(dataDirectory)
+        public AccuracyExperiment(string dataDirectory, string input, bool accumulate, int steps) :
+            base(dataDirectory, input, accumulate)
         {
             Steps = steps;
-            ObjectFile = objectFile;
         }
 
-        public override void Conduct()
+        protected override void Conduct(string path)
         {
-            IEnumerable<string> lines = File.ReadLines(Path.Combine(DataDirectory, ObjectFile));
+            IEnumerable<string> lines = File.ReadLines(path);
             PredictiveForest forest = new PredictiveForest(RoadNetwork, Constants.timeRange, Constants.probabilityThreshold);
             int counter = 0;
             Dictionary<int, List<double>> probabilities = new Dictionary<int, List<double>>();
@@ -34,37 +31,37 @@ namespace QueryProcessing.DataStructures.Experiments
 
             foreach (string line in lines)
             {
-                string[] splitted = line.Split(',');
-
-                // TODO: Remove after getting this experiment to work.
-                if (int.Parse(splitted[0]) > 5)
-                {
-                    break;
-                }
-
+                string[] splitted = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Console.WriteLine(string.Format("Predicting for step {0}", splitted[0]));
                 Region region = new Region(new Coordinates(double.Parse(splitted[1]), double.Parse(splitted[2])));
-                forest.Predict(region);
-                TreeNode predicted = forest.GetNode(RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude).Id);
-                if (predicted != null)
-                {
-                    probabilities[counter++].Add(predicted.Probability);
-                    counter %= Steps;
 
-                    if (counter == 0)
+                if (forest.Roots.Count != 0)
+                {
+                    RoadNetworkNode next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude, forest.Roots.Select(r => r.Id));
+                    TreeNode predictedNext = forest.Roots.SelectMany(r => r.Children).FirstOrDefault(n => n.Id == next.Id);
+                    if (predictedNext != null)
+                    {
+                        probabilities[counter++].Add(predictedNext.Probability);
+                        counter %= Steps;
+
+                        if (counter == 0)
+                        {
+                            forest.Clear();
+                        }
+                    }
+                    else
                     {
                         forest.Clear();
+                        counter = 0;
                     }
                 }
-                else
-                {
-                    forest.Clear();
-                    counter = 0;
-                }
+
+                forest.Predict(region);
             }
 
             foreach (var pair in probabilities)
             {
-                Results[pair.Key.ToString()] = pair.Value.Average();
+                Results[pair.Key.ToString()] = pair.Value.Count > 0 ? pair.Value.Average() : 0;
             }
         }
     }

@@ -150,12 +150,12 @@ namespace QueryProcessing.DataStructures
                 return null;
             }
 
-            RoadNetworkNode n = SpatialIndex[cellid].ElementAt(0).Value.From;
-
+            RoadNetworkNode n = null;
             double distance = double.MaxValue;
-            for (int i = 0; i < SpatialIndex[cellid].Count; i++)
+
+            foreach (var pair in SpatialIndex[cellid])
             {
-                Edge e = SpatialIndex[cellid].ElementAt(i).Value;
+                Edge e = pair.Value;
                 RoadNetworkNode tmp = e.From;
                 double ndis = DistanceInKM(c, tmp.Location);
                 if (distance > ndis)
@@ -164,7 +164,42 @@ namespace QueryProcessing.DataStructures
                     n = tmp;
                 }
             }
-            return n;
+
+            return n ?? SpatialIndex[cellid].First().Value.From;
+        }
+
+        public virtual RoadNetworkNode Nearest(double latitude, double longitude, IEnumerable<int> excluded)
+        {
+            Coordinates c = new Coordinates(latitude, longitude);
+            int cellid = Mapping(c);
+
+            if (SpatialIndex.ContainsKey(cellid) == false)
+            {
+                return null;
+            }
+
+            if (SpatialIndex[cellid].Values.Count < 1)
+            {
+                return null;
+            }
+
+            RoadNetworkNode n = null;
+            double distance = double.MaxValue;
+            HashSet<int> excludedSet = new HashSet<int>(excluded);
+
+            foreach (var pair in SpatialIndex[cellid])
+            {
+                Edge e = pair.Value;
+                RoadNetworkNode tmp = e.From;
+                double ndis = DistanceInKM(c, tmp.Location);
+                if (distance > ndis && !excludedSet.Contains(tmp.Id))
+                {
+                    distance = ndis;
+                    n = tmp;
+                }
+            }
+
+            return n ?? SpatialIndex[cellid].First().Value.From;
         }
 
         /// <summary>
@@ -191,9 +226,9 @@ namespace QueryProcessing.DataStructures
 
             //neighbors.Add(SpatialIndex[cellid].ElementAt(0).Value.From);
 
-            for (int i = 0; i < SpatialIndex[cellid].Count; i++)
+            foreach (var pair in SpatialIndex[cellid])
             {
-                Edge e = SpatialIndex[cellid].ElementAt(i).Value;
+                Edge e = pair.Value;
                 RoadNetworkNode node = e.From;
                 double distance = DistanceInKM(c, node.Location);
                 if (distance <= rangeInKM && !neighbors.ContainsKey(node.Id))
