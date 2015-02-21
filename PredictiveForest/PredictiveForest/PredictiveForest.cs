@@ -95,6 +95,7 @@ namespace QueryProcessing.DataStructures
                 {
                     if (forest[n].Parent != null)
                     {
+                        Debug.Assert(forest[n].Parent.Id != root.Id || forest[n].Parent.Probability == 1.0 / (double)Roots.Count);
                         forest[n].Probability = forest[n].Parent.Probability / forest[n].Parent.Children.Count;
                     }
                     else
@@ -268,14 +269,15 @@ namespace QueryProcessing.DataStructures
         {
             Debug.Assert(!execluded.Contains(node.Id));
             Debug.Assert(!forest.ContainsKey(node.Id));
-            TreeNode clone = node.Clone();
+            Debug.Assert(node.Parent == null || forest.ContainsKey(node.Parent.Id));
+            TreeNode clone = node.Clone(node.Parent == null ? null : forest[node.Parent.Id]);
             Debug.Assert(clone.Children.Count == 0);
 
             forest.Add(node.Id, clone);
             if (node.Parent != null)
             {
-                Debug.Assert(forest.ContainsKey(clone.Parent.Id));
                 forest[clone.Parent.Id].AddChild(clone);
+                Debug.Assert(Object.ReferenceEquals(forest[clone.Parent.Id], clone.Parent));
             }
         }
 

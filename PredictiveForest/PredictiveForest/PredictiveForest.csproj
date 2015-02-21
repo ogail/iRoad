@@ -42,7 +42,7 @@
     <Compile Include="Coordinates.cs" />
     <Compile Include="Edge.cs" />
     <Compile Include="Node.cs" />
-    <Compile Include="PredectiveTree.cs" />
+    <Compile Include="PredictiveTree.cs" />
     <Compile Include="PredictedObjectRecord.cs" />
     <Compile Include="PredictiveForest.cs" />
     <Compile Include="PriorityQueue.cs" />

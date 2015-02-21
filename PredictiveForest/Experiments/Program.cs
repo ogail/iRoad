@@ -13,7 +13,7 @@ namespace QueryProcessing.DataStructures.Experiments
             string dataPath = @"C:\projects\iRoad\Data";
             Experiment[] experiments =
             {
-                //new AccuracyExperiment(dataPath, "Object1.txt", false, 7)
+                //new AccuracyExperiment(dataPath, @"Object2.txt", false, 7)
                 new AccuracyExperiment(dataPath, @"C:\projects\iRoad\Data\AccuracyInput", false, 7),
                 new AccuracyExperiment(dataPath, @"C:\projects\iRoad\Data\AccuracyInput", true, 7)
             };

@@ -102,8 +102,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             }
         }
 
-        private void AssertHasIds(List<TreeNode> list, params int[] children)
+        private void AssertValidNode(TreeNode node, params int[] children)
         {
+            List<TreeNode> list = node.Children;
             Assert.Equal(list.Count, children.Length);
             Assert.True(children.ToList().TrueForAll(n => list.Any(t => t.Id == n)));
 
@@ -115,6 +116,12 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             }
         }
 
+        private void AssertRoots(PredictiveForest forest, params int[] ids)
+        {
+            Assert.Equal(ids.Length, forest.Roots.Count);
+            Assert.True(forest.Roots.ToList().TrueForAll(n => ids.Any(t => t == n.Id)));
+        }
+
         [Fact]
         public void BuildingSimplePredectiveForestTest()
         {
@@ -123,9 +130,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "simple forest";
             pForest.Predict(region);
 
-            AssertHasIds(pForest.Roots, 0, 1);
-            AssertHasIds(pForest[0].Children, 2, 3);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertRoots(pForest, 0, 1);
+            AssertValidNode(pForest[0], 2, 3);
+            AssertValidNode(pForest[1], 4, 5, 6);
         }
 
         [Fact]
@@ -136,9 +143,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "conflict forest";
             pForest.Predict(region);
 
-            AssertHasIds(pForest.Roots, 0, 1);
-            AssertHasIds(pForest[0].Children, 3);
-            AssertHasIds(pForest[1].Children, 2, 4);
+            AssertRoots(pForest, 0, 1);
+            AssertValidNode(pForest[0], 3);
+            AssertValidNode(pForest[1], 2, 4);
         }
 
         [Fact]
@@ -158,13 +165,13 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "medium forest 2";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
-            AssertHasIds(pForest[0].Children, 4, 5);
-            AssertHasIds(pForest[1].Children, 6);
-            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
-            AssertHasIds(pForest[6].Children, 14, 15);
-            AssertHasIds(pForest[13].Children, 16);
+            AssertRoots(pForest, 0, 1, 2, 3);
+            AssertValidNode(pForest[0], 4, 5);
+            AssertValidNode(pForest[1], 6);
+            AssertValidNode(pForest[2], 7, 8, 9, 10);
+            AssertValidNode(pForest[3], 11, 12, 13);
+            AssertValidNode(pForest[6], 14, 15);
+            AssertValidNode(pForest[13], 16);
         }
 
         [Fact]
@@ -194,18 +201,18 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "medium forest";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
-            AssertHasIds(pForest[0].Children, 4, 5);
-            AssertHasIds(pForest[1].Children, 6);
-            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertRoots(pForest, 0, 1, 2, 3);
+            AssertValidNode(pForest[0], 4, 5);
+            AssertValidNode(pForest[1], 6);
+            AssertValidNode(pForest[2], 7, 8, 9, 10);
+            AssertValidNode(pForest[3], 11, 12, 13);
 
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 1, 8, 3);
-            AssertHasIds(pForest[1].Children, 6);
-            AssertHasIds(pForest[8].Children);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertRoots(pForest, 1, 8, 3);
+            AssertValidNode(pForest[1], 6);
+            AssertValidNode(pForest[8]);
+            AssertValidNode(pForest[3], 11, 12, 13);
         }
 
         [Fact]
@@ -233,15 +240,15 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "simple forest";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1);
-            AssertHasIds(pForest[0].Children, 2, 3);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertRoots(pForest, 0, 1);
+            AssertValidNode(pForest[0], 2, 3);
+            AssertValidNode(pForest[1], 4, 5, 6);
 
             currentTest = "simple forest 2";
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 1, 6);
-            AssertHasIds(pForest[1].Children, 4, 5);
+            AssertRoots(pForest, 1, 6);
+            AssertValidNode(pForest[1], 4, 5);
         }
 
         [Fact]
@@ -268,15 +275,15 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "simple forest";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1);
-            AssertHasIds(pForest[0].Children, 2, 3);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertRoots(pForest, 0, 1);
+            AssertValidNode(pForest[0], 2, 3);
+            AssertValidNode(pForest[1], 4, 5, 6);
 
             currentTest = "simple forest 2";
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 1);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertRoots(pForest, 1);
+            AssertValidNode(pForest[1], 4, 5, 6);
         }
 
         [Fact]
@@ -303,16 +310,16 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "simple forest";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1);
-            AssertHasIds(pForest[0].Children, 2, 3);
-            AssertHasIds(pForest[1].Children, 4, 5, 6);
+            AssertRoots(pForest, 0, 1);
+            AssertValidNode(pForest[0], 2, 3);
+            AssertValidNode(pForest[1], 4, 5, 6);
 
             currentTest = "simple forest 2";
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 7, 8);
-            AssertHasIds(pForest[7].Children, 9, 10);
-            AssertHasIds(pForest[8].Children, 11, 12, 13);
+            AssertRoots(pForest, 7, 8);
+            AssertValidNode(pForest[7], 9, 10);
+            AssertValidNode(pForest[8], 11, 12, 13);
         }
 
         [Fact]
@@ -351,22 +358,22 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             currentTest = "medium forest";
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
-            AssertHasIds(pForest[0].Children, 4, 5);
-            AssertHasIds(pForest[1].Children, 6);
-            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertRoots(pForest, 0, 1, 2, 3);
+            AssertValidNode(pForest[0], 4, 5);
+            AssertValidNode(pForest[1], 6);
+            AssertValidNode(pForest[2], 7, 8, 9, 10);
+            AssertValidNode(pForest[3], 11, 12, 13);
 
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 0, 3);
-            AssertHasIds(pForest[0].Children, 4, 5);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertRoots(pForest, 0, 3);
+            AssertValidNode(pForest[0], 4, 5);
+            AssertValidNode(pForest[3], 11, 12, 13);
 
             pForest.Predict(region3);
 
-            AssertHasIds(pForest.Roots, 3);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
+            AssertRoots(pForest, 3);
+            AssertValidNode(pForest[3], 11, 12, 13);
         }
 
         [Fact]
@@ -403,23 +410,23 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
 
             pForest.Predict(region1);
 
-            AssertHasIds(pForest.Roots, 0, 1, 2, 3);
-            AssertHasIds(pForest[0].Children, 4, 5);
-            AssertHasIds(pForest[1].Children, 6);
-            AssertHasIds(pForest[2].Children, 7, 8, 9, 10);
-            AssertHasIds(pForest[3].Children, 11, 12, 13);
-            AssertHasIds(pForest[6].Children, 14, 15);
-            AssertHasIds(pForest[13].Children, 16);
+            AssertRoots(pForest, 0, 1, 2, 3);
+            AssertValidNode(pForest[0], 4, 5);
+            AssertValidNode(pForest[1], 6);
+            AssertValidNode(pForest[2], 7, 8, 9, 10);
+            AssertValidNode(pForest[3], 11, 12, 13);
+            AssertValidNode(pForest[6], 14, 15);
+            AssertValidNode(pForest[13], 16);
 
             pForest.Predict(region2);
 
-            AssertHasIds(pForest.Roots, 6);
-            AssertHasIds(pForest[6].Children, 14, 15);
+            AssertRoots(pForest, 6);
+            AssertValidNode(pForest[6], 14, 15);
 
             pForest.Predict(region3);
 
-            AssertHasIds(pForest.Roots, 14);
-            AssertHasIds(pForest[14].Children);
+            AssertRoots(pForest, 14);
+            AssertValidNode(pForest[14]);
         }
     }
 }

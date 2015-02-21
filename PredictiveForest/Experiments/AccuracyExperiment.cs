@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,7 +38,24 @@ namespace QueryProcessing.DataStructures.Experiments
 
                 if (forest.Roots.Count != 0)
                 {
-                    RoadNetworkNode next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude, forest.Roots.Select(r => r.Id));
+                    RoadNetworkNode next = null;
+
+                    if (splitted.Length == 3)
+                    {
+                        next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude);
+                    }
+                    else
+                    {
+                        Debug.Assert(splitted.Length == 4);
+                        next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude, int.Parse(splitted[3]));
+                    }
+
+                    // Remove this line when changing to Forest
+                    if (forest.Roots.Any(r => r.Id == next.Id))
+                    {
+                        continue;
+                    }
+
                     TreeNode predictedNext = forest.Roots.SelectMany(r => r.Children).FirstOrDefault(n => n.Id == next.Id);
                     if (predictedNext != null)
                     {
@@ -61,7 +79,7 @@ namespace QueryProcessing.DataStructures.Experiments
 
             foreach (var pair in probabilities)
             {
-                Results[pair.Key.ToString()] = pair.Value.Count > 0 ? pair.Value.Average() : 0;
+                ResultsJson[pair.Key.ToString()] = pair.Value.Count > 0 ? pair.Value.Average() : 0;
             }
         }
     }

@@ -73,14 +73,14 @@ namespace QueryProcessing.DataStructures
             return null;
         }
 
-        public TreeNode Clone()
+        public TreeNode Clone(TreeNode parent)
         {
             return new TreeNode()
             {
                 DistanceToRoot = this.DistanceToRoot,
                 Id = this.Id,
                 Node = this.Node,
-                Parent = this.Parent,
+                Parent = parent,
                 Probability = this.Probability,
             };
         }

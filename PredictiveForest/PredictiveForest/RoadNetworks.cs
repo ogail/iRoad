@@ -135,6 +135,18 @@ namespace QueryProcessing.DataStructures
             return d;
         }
 
+        public RoadNetworkNode Nearest(double latitude, double longitude, int edgeId)
+        {
+            Edge tempEdge = Edges[edgeId];
+            int fromNodeId = tempEdge.From.Id;
+            int toNodeId = tempEdge.To.Id;
+            Coordinates objectCordinates = new Coordinates(latitude, longitude);
+            double distanceToFromNode = DistanceInKM(Nodes[fromNodeId].Location, objectCordinates);
+            double distanceToToNode = DistanceInKM(Nodes[toNodeId].Location, objectCordinates);
+
+            return distanceToFromNode < distanceToToNode ? Nodes[fromNodeId] : Nodes[toNodeId];
+        }
+
         public virtual RoadNetworkNode Nearest(double latitude, double longitude)
         {
             Coordinates c = new Coordinates(latitude, longitude);
@@ -159,40 +171,6 @@ namespace QueryProcessing.DataStructures
                 RoadNetworkNode tmp = e.From;
                 double ndis = DistanceInKM(c, tmp.Location);
                 if (distance > ndis)
-                {
-                    distance = ndis;
-                    n = tmp;
-                }
-            }
-
-            return n ?? SpatialIndex[cellid].First().Value.From;
-        }
-
-        public virtual RoadNetworkNode Nearest(double latitude, double longitude, IEnumerable<int> excluded)
-        {
-            Coordinates c = new Coordinates(latitude, longitude);
-            int cellid = Mapping(c);
-
-            if (SpatialIndex.ContainsKey(cellid) == false)
-            {
-                return null;
-            }
-
-            if (SpatialIndex[cellid].Values.Count < 1)
-            {
-                return null;
-            }
-
-            RoadNetworkNode n = null;
-            double distance = double.MaxValue;
-            HashSet<int> excludedSet = new HashSet<int>(excluded);
-
-            foreach (var pair in SpatialIndex[cellid])
-            {
-                Edge e = pair.Value;
-                RoadNetworkNode tmp = e.From;
-                double ndis = DistanceInKM(c, tmp.Location);
-                if (distance > ndis && !excludedSet.Contains(tmp.Id))
                 {
                     distance = ndis;
                     n = tmp;
