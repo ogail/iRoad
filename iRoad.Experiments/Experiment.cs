@@ -91,7 +91,7 @@ namespace iRoad.Experiments
 
         private void Save()
         {
-            string path = string.Format("r={0}-{1}.txt", Radius, DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture));
+            string path = string.Format("r={0}-{1}{2}.txt", Radius, Accumulate ? "avg-" : "",  DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture));
             File.WriteAllText(path, Results.ToString());
             Console.WriteLine(string.Format("Results for experiment are saved in {0}", path));
         }

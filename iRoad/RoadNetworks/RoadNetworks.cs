@@ -120,7 +120,7 @@ namespace iRoad
             }
         }
 
-        public double DistanceInKM(Coordinates c1, Coordinates c2)
+        public virtual double DistanceInKM(Coordinates c1, Coordinates c2)
         {
             double lat1 = c1.Latitude;
             double long1 = c1.Longitude;

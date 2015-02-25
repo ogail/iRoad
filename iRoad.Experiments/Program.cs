@@ -10,19 +10,19 @@ namespace iRoad.Experiments
     {
         static void Main(string[] args)
         {
-            string dataPath = @"C:\projects\iRoad\Data";
+            string dataPath = @"C:\projects\iRoad-old\Data";
             List<Experiment> experiments = new List<Experiment>();
 
             //experiments.Add(new AccuracyExperiment(dataPath, @"C:\projects\iRoad\Data\AccuracyInput\object_0.txt", 0, false, 6));
 
             // Create accuracy experiments
-            double radius = 0;
-            double radiusMax = 0.25;
+            double radius = 0.0;
+            double radiusMax = 0.3;
             double radiusIncrease = 0.05;
 
             while (radius <= radiusMax)
             {
-                experiments.Add(new AccuracyExperiment(dataPath, @"C:\projects\iRoad\Data\AccuracyInput", radius, false, 6));
+                experiments.Add(new AccuracyExperiment(dataPath, @"C:\projects\iRoad-old\Data\AccuracyInput", radius, true, 6));
                 radius += radiusIncrease;
             }
 
