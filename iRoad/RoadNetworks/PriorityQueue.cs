@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace QueryProcessing.DataStructures
+namespace iRoad
 {
     /// <summary>
     /// Priority queue based on binary heap,

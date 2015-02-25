@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections;
 using System.Diagnostics;
 
-namespace QueryProcessing.DataStructures
+namespace iRoad
 {
     public class PredictiveTreeNode
     {

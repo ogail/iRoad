@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QueryProcessing.DataStructures.Experiments
+namespace iRoad.Experiments
 {
     public abstract class Experiment
     {

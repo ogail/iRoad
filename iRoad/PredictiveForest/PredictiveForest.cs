@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace QueryProcessing.DataStructures
+namespace iRoad
 {
     /// <summary>
     /// A predictive forest is a public class that hold range of predictive trees to keep track of
@@ -286,7 +286,7 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         /// <param name="region">The region</param>
         /// <returns>List of road network nodes in the specific region.</returns>
-        private List<RoadNetworkNode> GetRegionNodes(DataStructures.Region region)
+        private List<RoadNetworkNode> GetRegionNodes(Region region)
         {
             RoadNetworkNode centerNode = RoadNetwork.Nearest(Region.Center.Latitude, Region.Center.Longitude);
             return RoadNetwork.GetNeighbors(centerNode, region.Radius).Where(n => !execluded.Contains(n.Id)).ToList();

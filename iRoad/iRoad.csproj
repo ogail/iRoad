@@ -7,8 +7,8 @@
     <ProjectGuid>{655D9048-4914-4E9E-840A-06940827081F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QueryProcessing.DataStructures.PredictiveForest</RootNamespace>
-    <AssemblyName>QueryProcessing.DataStructures.PredictiveForest</AssemblyName>
+    <RootNamespace>iRoad</RootNamespace>
+    <AssemblyName>iRoad</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -50,10 +50,9 @@
     <Compile Include="PredictiveForest\Region.cs" />
     <Compile Include="RoadNetworks\RoadNetworks.cs" />
     <Compile Include="PredictiveTree\PredictiveTreeNode.cs" />
+    <Compile Include="TPRTree\TPRTree.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TPRTree\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

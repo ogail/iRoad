@@ -4,7 +4,7 @@ using Xunit;
 using System.Linq;
 using System.IO;
 
-namespace QueryProcessing.DataStructures.PredictiveForestTest
+namespace iRoad.PredictiveForestTest
 {
     public class PredectiveForestTests
     {
