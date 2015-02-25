@@ -4,4 +4,4 @@ install:
   - nuget restore ./iRoad.sln
 script:
   - xbuild /p:Configuration=Release iRoad.sln
-  - mono ./packages/xunit.runners.1.9.2/tools/xunit.console.exe ./iRoad.Test/bin/Release/iRoad.Test.dll
+  - mono ./packages/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./iRoad.Test/bin/Release/iRoad.Test.dll
