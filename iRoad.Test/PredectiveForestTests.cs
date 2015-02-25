@@ -20,7 +20,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
 
         private const double probabilityThreshold = 0;
 
-        private Dictionary<string, Dictionary<int, TreeNode>> generatedTrees;
+        private Dictionary<string, Dictionary<int, PredictiveTreeNode>> generatedTrees;
 
         private string currentTest;
 
@@ -33,7 +33,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             mockRoadNetworks.Setup(m => m.Nearest(It.IsAny<double>(), It.IsAny<double>()));
             mockRoadNetworks.Setup(m => m.GetNeighbors(It.IsAny<RoadNetworkNode>(), It.IsAny<double>())).
                 Returns(roots);
-            generatedTrees = new Dictionary<string, Dictionary<int, TreeNode>>();
+            generatedTrees = new Dictionary<string, Dictionary<int, PredictiveTreeNode>>();
             pForest = new PredictiveForest(mockRoadNetworks.Object, timeRange, probabilityThreshold);
             pForest.TreeBuilder = MockTreeBuilder;
             GenerateTree("Resources\\forests.txt");
@@ -47,7 +47,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             }
         }
 
-        private TreeNode MockTreeBuilder(RoadNetworks roadNetwork, RoadNetworkNode roadNode, double timeRange, double probabilityThreshold)
+        private PredictiveTreeNode MockTreeBuilder(RoadNetworks roadNetwork, RoadNetworkNode roadNode, double timeRange, double probabilityThreshold)
         {
             Assert.True(!string.IsNullOrEmpty(currentTest));
             return generatedTrees[currentTest][roadNode.Id];
@@ -63,12 +63,12 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 if (line.Contains("forest"))
                 {
                     currentForest = line.TrimEnd('\n', '\r');
-                    generatedTrees[currentForest] = new Dictionary<int, TreeNode>();
+                    generatedTrees[currentForest] = new Dictionary<int, PredictiveTreeNode>();
                 }
                 else
                 {
                     string[] splitted = line.Split(new char[] { ':', ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    TreeNode node = new TreeNode { Id = int.Parse(splitted.First()) };
+                    PredictiveTreeNode node = new PredictiveTreeNode { Id = int.Parse(splitted.First()) };
                     for (int i = 1; i < splitted.Length; i++)
                     {
                         int id = int.MinValue;
@@ -83,10 +83,10 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                             id = int.Parse(splitted[i]);
                         }
 
-                        node.AddChild(new TreeNode { Id = id, DistanceToRoot = distance, Parent = node });
+                        node.AddChild(new PredictiveTreeNode { Id = id, DistanceToRoot = distance, Parent = node });
                     }
                     Assert.True(!string.IsNullOrEmpty(currentForest));
-                    TreeNode parent = generatedTrees[currentForest].Values.FirstOrDefault(n => n.Children.Any(c => c.Id == node.Id));
+                    PredictiveTreeNode parent = generatedTrees[currentForest].Values.FirstOrDefault(n => n.Children.Any(c => c.Id == node.Id));
 
                     if (parent == null)
                     {
@@ -102,9 +102,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             }
         }
 
-        private void AssertValidNode(TreeNode node, params int[] children)
+        private void AssertValidNode(PredictiveTreeNode node, params int[] children)
         {
-            List<TreeNode> list = node.Children;
+            List<PredictiveTreeNode> list = node.Children;
             Assert.Equal(list.Count, children.Length);
             Assert.True(children.ToList().TrueForAll(n => list.Any(t => t.Id == n)));
 

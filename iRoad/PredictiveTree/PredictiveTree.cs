@@ -10,9 +10,9 @@ namespace QueryProcessing.DataStructures
     {
         private RoadNetworks roadNetwork;
 
-        private PriorityQueue<double, TreeNode> mainQueue;
+        private PriorityQueue<double, PredictiveTreeNode> mainQueue;
 
-        private Dictionary<int, TreeNode> tempStorage; //items that are currently in the queue
+        private Dictionary<int, PredictiveTreeNode> tempStorage; //items that are currently in the queue
 
         private double probabilityThreshold;
 
@@ -22,9 +22,9 @@ namespace QueryProcessing.DataStructures
 
         public int rootID;
 
-        public TreeNode rootitem;
+        public PredictiveTreeNode rootitem;
 
-        public Dictionary<int, TreeNode> myTree;
+        public Dictionary<int, PredictiveTreeNode> myTree;
 
         public double time;
 
@@ -33,14 +33,14 @@ namespace QueryProcessing.DataStructures
         public PredectiveTree(RoadNetworks RN, RoadNetworkNode n, double range, double probabilityThreshold)
         {
             root = n;
-            rootitem = new TreeNode();
+            rootitem = new PredictiveTreeNode();
             this.rootID = n.Id;
             rootitem.Id = n.Id;
             rootitem.Parent = null;
             rootitem.DistanceToRoot = 0;
             rootitem.Node = n;
-            myTree = new Dictionary<int, TreeNode>();
-            tempStorage = new Dictionary<int, TreeNode>();
+            myTree = new Dictionary<int, PredictiveTreeNode>();
+            tempStorage = new Dictionary<int, PredictiveTreeNode>();
             this.roadNetwork = RN;
             this.range = range;
             this.probabilityThreshold = probabilityThreshold;
@@ -49,7 +49,7 @@ namespace QueryProcessing.DataStructures
 
         }
 
-        public void AddItem(TreeNode it)
+        public void AddItem(PredictiveTreeNode it)
         {
             if (myTree.Keys.Contains(it.Id) == true)
             {
@@ -64,19 +64,19 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        public void Initialization(TreeNode root)
+        public void Initialization(PredictiveTreeNode root)
         {
             //put the root item in the queue
             this.myTree.Add(root.Id, root);
 
             //put the initial connections in the main queue
             //get the list of connections
-            List<TreeNode> connections = GetConnectedItems(root);
+            List<PredictiveTreeNode> connections = GetConnectedItems(root);
 
             //put them into the main queue
             for (int i = 0; i < connections.Count; i++)
             {
-                TreeNode ti = connections.ElementAt(i);
+                PredictiveTreeNode ti = connections.ElementAt(i);
                 //InsertQueue(ti);
                 mainQueue.Enqueue(ti.DistanceToRoot, ti);
                 
@@ -87,9 +87,9 @@ namespace QueryProcessing.DataStructures
             //this.myTree.Add(root.NodeID, root);
         }
 
-        public List<TreeNode> GetConnectedItems(TreeNode ti)
+        public List<PredictiveTreeNode> GetConnectedItems(PredictiveTreeNode ti)
         {
-            List<TreeNode> result = new List<TreeNode>();
+            List<PredictiveTreeNode> result = new List<PredictiveTreeNode>();
             RoadNetworkNode ori = ti.Node;
 
             foreach (Edge ConnectedEdge in ori.OutEdges.Values)
@@ -98,7 +98,7 @@ namespace QueryProcessing.DataStructures
                 if (myTree.ContainsKey(nout.Id) == false)
                 {
 
-                    TreeNode t = new TreeNode(nout);
+                    PredictiveTreeNode t = new PredictiveTreeNode(nout);
                     t.Parent = ti;
                     t.DistanceToRoot = ti.DistanceToRoot + ConnectedEdge.Length;
                     result.Add(t);
@@ -108,7 +108,7 @@ namespace QueryProcessing.DataStructures
             return result;
         }
        
-        public void GetDistanceFromNodeToTreeRoot(TreeNode ti) // get the distance from the given TreeItem node to the root of an object tree
+        public void GetDistanceFromNodeToTreeRoot(PredictiveTreeNode ti) // get the distance from the given TreeNode node to the root of an object tree
         {
             if (ti.Parent == null)
             {
@@ -156,10 +156,10 @@ namespace QueryProcessing.DataStructures
             return result;
         }
 
-        public TreeNode GetNextItem()
+        public PredictiveTreeNode GetNextItem()
         {
             //remove from the queue
-            TreeNode result = mainQueue.Dequeue().Value;
+            PredictiveTreeNode result = mainQueue.Dequeue().Value;
             //remove from the tempstorage
             if (tempStorage.ContainsKey(result.Id))
             {
@@ -168,7 +168,7 @@ namespace QueryProcessing.DataStructures
             return result;
         }
 
-        public void InsertQueue(TreeNode it)
+        public void InsertQueue(PredictiveTreeNode it)
         {
 
             if (mainQueue.ContainsID(it) == false)
@@ -185,12 +185,12 @@ namespace QueryProcessing.DataStructures
             else
             {
 
-                TreeNode old = tempStorage[it.Id];
+                PredictiveTreeNode old = tempStorage[it.Id];
 
                 if (old.DistanceToRoot > it.DistanceToRoot)
                 {
 
-                    this.mainQueue.Remove(new KeyValuePair<double, TreeNode>(old.DistanceToRoot, old));
+                    this.mainQueue.Remove(new KeyValuePair<double, PredictiveTreeNode>(old.DistanceToRoot, old));
                     this.tempStorage.Remove(old.Id);
                     this.mainQueue.Enqueue(it.DistanceToRoot, it);
                     this.tempStorage.Add(it.Id, it);
@@ -206,7 +206,7 @@ namespace QueryProcessing.DataStructures
 
         public void CreateMainQueue()
         {
-            mainQueue = new PriorityQueue<double, TreeNode>();
+            mainQueue = new PriorityQueue<double, PredictiveTreeNode>();
         }
 
         public void Process()
@@ -222,16 +222,16 @@ namespace QueryProcessing.DataStructures
                 if (this.mainQueue.IsEmpty == false)
                 {
 
-                    TreeNode ti = GetNextItem();
+                    PredictiveTreeNode ti = GetNextItem();
                    if(myTree.ContainsKey(ti.Id)==false) {
 
                         //Console.WriteLine("Queue Size: " + this.mainQueue.Count + "\t Tree Size: " + this.myTree.Count);
                         //Console.WriteLine("Processing Item " + ti.NodeID + "\t" + ti.ThisNode.OutEdges.Count);
-                        List<TreeNode> connections = GetConnectedItems(ti);
+                        List<PredictiveTreeNode> connections = GetConnectedItems(ti);
 
                         for (int i = 0; i < connections.Count; i++)
                         {
-                            TreeNode newti = connections.ElementAt(i);
+                            PredictiveTreeNode newti = connections.ElementAt(i);
                            
                             //Console.WriteLine("Inserting " + newti.NodeID);
                             
@@ -265,18 +265,18 @@ namespace QueryProcessing.DataStructures
 
         public void ProbabilityExpansion(double probabilityThreshold) // assgin probability to the items in the tree
         {
-            TreeNode ti = this.rootitem;
+            PredictiveTreeNode ti = this.rootitem;
             ti.Probability = 1.0;
             int degree = ti.Children.Count;
-            Queue<TreeNode> queue = new Queue<TreeNode>();
+            Queue<PredictiveTreeNode> queue = new Queue<PredictiveTreeNode>();
             queue.Enqueue(ti);
             while (queue.Count > 0)
             {
-                TreeNode dqitem = queue.Dequeue();
+                PredictiveTreeNode dqitem = queue.Dequeue();
                 degree = dqitem.Children.Count;    
                 for (int i = 0; i < dqitem.Children.Count; i++)
                 {
-                    TreeNode iqitem = dqitem.Children.ElementAt(i);
+                    PredictiveTreeNode iqitem = dqitem.Children.ElementAt(i);
                     iqitem.Probability = dqitem.Probability / degree;                    
                     {
                         queue.Enqueue(iqitem);
@@ -352,18 +352,18 @@ namespace QueryProcessing.DataStructures
          */
         public void ObjectProbabilityExpansion(int objectId, double probabilityThreshold) // assgin probability to the items(reachable nodes) in the tree of an object
         {
-            TreeNode ti = this.rootitem;
+            PredictiveTreeNode ti = this.rootitem;
             ti.Probability = 1.0;
             int degree = ti.Children.Count;
-            Queue<TreeNode> queue = new Queue<TreeNode>();
+            Queue<PredictiveTreeNode> queue = new Queue<PredictiveTreeNode>();
             queue.Enqueue(ti);
             while (queue.Count > 0)
             {
-                TreeNode dqitem = queue.Dequeue();
+                PredictiveTreeNode dqitem = queue.Dequeue();
                 degree = dqitem.Children.Count;
                 for (int i = 0; i < dqitem.Children.Count; i++)
                 {
-                    TreeNode iqitem = dqitem.Children.ElementAt(i);
+                    PredictiveTreeNode iqitem = dqitem.Children.ElementAt(i);
                     iqitem.Probability = dqitem.Probability / degree;
 
                     this.GetDistanceFromNodeToTreeRoot(iqitem); // to get the iqitem.DistanceToRoot
@@ -390,18 +390,18 @@ namespace QueryProcessing.DataStructures
          */
         public void ObjectProbabilityExpansion_NMM(int objectId, double probabilityThreshold) // assgin probability to the items(reachable nodes) in the tree of an object
         {
-            TreeNode ti = this.rootitem;
+            PredictiveTreeNode ti = this.rootitem;
            // ti.probability = 1.0;
             int degree = ti.Children.Count;
-            Queue<TreeNode> queue = new Queue<TreeNode>();
+            Queue<PredictiveTreeNode> queue = new Queue<PredictiveTreeNode>();
             queue.Enqueue(ti);
             while (queue.Count > 0)
             {
-                TreeNode dqitem = queue.Dequeue();
+                PredictiveTreeNode dqitem = queue.Dequeue();
                 degree = dqitem.Children.Count;
                 for (int i = 0; i < dqitem.Children.Count; i++)
                 {
-                    TreeNode iqitem = dqitem.Children.ElementAt(i);
+                    PredictiveTreeNode iqitem = dqitem.Children.ElementAt(i);
                     //iqitem.probability = dqitem.probability / degree;
                     iqitem.Probability = 1 / degree; // each level is separated from the previous levels. Probability of a child node  is 1/number of chilren nodes under this parent node 
                     this.GetDistanceFromNodeToTreeRoot(iqitem); // to get the iqitem.DistanceToRoot
@@ -428,8 +428,8 @@ namespace QueryProcessing.DataStructures
 
             UpdateObjectTree_DeleteFromPredictedObjects(objectId); // delete the object record from the predicted answer
             
-            TreeNode treeItem = this.rootitem.GetNextTreeItem(nextNodeId);            
-            ObjectSubtree(treeItem); // prune the tree by pointing to the new node as the root of the tree
+            PredictiveTreeNode TreeNode = this.rootitem.GetNextTreeNode(nextNodeId);            
+            ObjectSubtree(TreeNode); // prune the tree by pointing to the new node as the root of the tree
 
             this.ObjectProbabilityExpansion(objectId, probabilityThreshold); // insert the object to the nodes of the new tree with its new probability 
             
@@ -443,15 +443,15 @@ namespace QueryProcessing.DataStructures
 
         public void UpdateObjectTree_DeleteFromPredictedObjects(int objectId) 
         {
-            TreeNode ti = this.rootitem;            
-            Queue<TreeNode> queue = new Queue<TreeNode>();
+            PredictiveTreeNode ti = this.rootitem;            
+            Queue<PredictiveTreeNode> queue = new Queue<PredictiveTreeNode>();
             queue.Enqueue(ti);
             while (queue.Count > 0)
             {
-                TreeNode dqitem = queue.Dequeue();                
+                PredictiveTreeNode dqitem = queue.Dequeue();                
                 for (int i = 0; i < dqitem.Children.Count; i++)
                 {
-                    TreeNode iqitem = dqitem.Children.ElementAt(i);
+                    PredictiveTreeNode iqitem = dqitem.Children.ElementAt(i);
                     queue.Enqueue(iqitem);
                     this.roadNetwork.Nodes[iqitem.Id].DeletePredictedObject(objectId); // delete an existing element from the answer of predictedObjects
                 }
@@ -459,7 +459,7 @@ namespace QueryProcessing.DataStructures
 
         }
 
-        public void ObjectSubtree(TreeNode tItem) // move the root to one level to point at the new nextNodeId
+        public void ObjectSubtree(PredictiveTreeNode tItem) // move the root to one level to point at the new nextNodeId
         {
             if (tItem == null) 
             { 
@@ -487,7 +487,7 @@ namespace QueryProcessing.DataStructures
                 Random random = new Random();
                 int randomNumber = random.Next(0, 100);
                 int selection = randomNumber % rootitem.Children.Count;
-                TreeNode it = this.rootitem.Children.ElementAt(selection);
+                PredictiveTreeNode it = this.rootitem.Children.ElementAt(selection);
                 subtree(it);
             }
             else          //no more steps
@@ -496,7 +496,7 @@ namespace QueryProcessing.DataStructures
             }
         }
 
-        public void subtree(TreeNode it)//get a subtree in reachability tree
+        public void subtree(PredictiveTreeNode it)//get a subtree in reachability tree
         {
             if (myTree.ContainsKey(it.Id) == true)
             {
@@ -525,7 +525,7 @@ namespace QueryProcessing.DataStructures
 
         public bool IsChild(int nodeId) // check if this nodeId is a child of the root node in the tree
         {
-            TreeNode ti = this.rootitem;
+            PredictiveTreeNode ti = this.rootitem;
             for (int i = 0; i < ti.Children.Count; i++)
                 if (ti.Children.ElementAt(i).Id == nodeId)
                     return true;

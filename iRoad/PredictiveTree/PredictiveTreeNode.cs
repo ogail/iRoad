@@ -7,11 +7,11 @@ using System.Diagnostics;
 
 namespace QueryProcessing.DataStructures
 {
-    public class TreeNode
+    public class PredictiveTreeNode
     {
         public int Id { get; set; }
 
-        public TreeNode Parent { get; set; }
+        public PredictiveTreeNode Parent { get; set; }
 
         public RoadNetworkNode Node { get; set; }
 
@@ -19,30 +19,30 @@ namespace QueryProcessing.DataStructures
 
         public double DistanceToRoot { get; set; }
 
-        public List<TreeNode> Children { get; set; }
+        public List<PredictiveTreeNode> Children { get; set; }
 
-        public TreeNode()
+        public PredictiveTreeNode()
         {
-            Children = new List<TreeNode>();
+            Children = new List<PredictiveTreeNode>();
             this.Probability = 0;
         }
         
-        public TreeNode(RoadNetworkNode n)
+        public PredictiveTreeNode(RoadNetworkNode n)
         {
             this.Id = n.Id;
             this.Node = n;
             this.Probability = 0;
-            Children = new List<TreeNode>();
+            Children = new List<PredictiveTreeNode>();
         }
 
-        public void AddChild(TreeNode ti)
+        public void AddChild(PredictiveTreeNode ti)
         {
             Debug.Assert(ti.Parent != null && ti.Parent.Id == Id);
             Debug.Assert(!Children.Any(n => n.Id == ti.Id));
             this.Children.Add(ti);
         }
 
-        public void RemoveChild(TreeNode ti)
+        public void RemoveChild(PredictiveTreeNode ti)
         {
             Debug.Assert(ti.Parent != null && ti.Parent.Id == Id);
             Debug.Assert(Children.Any(n => n.Id == ti.Id));
@@ -52,7 +52,7 @@ namespace QueryProcessing.DataStructures
 
         public override bool Equals(Object t)
         {
-            return this.Id.Equals(((TreeNode)t).Id);
+            return this.Id.Equals(((PredictiveTreeNode)t).Id);
         }
 
         public override int GetHashCode()
@@ -60,7 +60,7 @@ namespace QueryProcessing.DataStructures
             return this.Id.GetHashCode();
         }
 
-        public TreeNode GetNextTreeItem(int nextNodeId)
+        public PredictiveTreeNode GetNextTreeNode(int nextNodeId)
         {
             for (int i = 0; i < this.Children.Count; i++)
             {
@@ -73,9 +73,9 @@ namespace QueryProcessing.DataStructures
             return null;
         }
 
-        public TreeNode Clone(TreeNode parent)
+        public PredictiveTreeNode Clone(PredictiveTreeNode parent)
         {
-            return new TreeNode()
+            return new PredictiveTreeNode()
             {
                 DistanceToRoot = this.DistanceToRoot,
                 Id = this.Id,

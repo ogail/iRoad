@@ -11,12 +11,12 @@ namespace QueryProcessing.DataStructures
     /// A predictive forest is a public class that hold range of predictive trees to keep track of
     /// a range of nodes instead of an exact node.
     /// </summary>
-    public class PredictiveForest : IEnumerable<TreeNode>
+    public class PredictiveForest : IEnumerable<PredictiveTreeNode>
     {
         /// <summary>
         /// Represents the forest nodes.
         /// </summary>
-        private Dictionary<int, TreeNode> forest;
+        private Dictionary<int, PredictiveTreeNode> forest;
 
         /// <summary>
         /// Holds the execluded nodes from the history.
@@ -26,7 +26,7 @@ namespace QueryProcessing.DataStructures
         /// <summary>
         /// The root nodes for the forest.
         /// </summary>
-        public List<TreeNode> Roots
+        public List<PredictiveTreeNode> Roots
         {
             get {return forest.Values.Where(n => n.Parent == null).ToList(); }
         }
@@ -59,7 +59,7 @@ namespace QueryProcessing.DataStructures
         /// <summary>
         /// Build a tree for a given road network node.
         /// </summary>
-        public Func<RoadNetworks, RoadNetworkNode, double, double, TreeNode> TreeBuilder { get; set; }
+        public Func<RoadNetworks, RoadNetworkNode, double, double, PredictiveTreeNode> TreeBuilder { get; set; }
 
         /// <summary>
         /// Constructor to create the forest.
@@ -72,7 +72,7 @@ namespace QueryProcessing.DataStructures
             this.RoadNetwork = roadNetwork;
             this.execluded = new HashSet<int>();
             this.ProbabilityThreshold = probabilityThreshold;
-            this.forest = new Dictionary<int, TreeNode>();
+            this.forest = new Dictionary<int, PredictiveTreeNode>();
             this.TimeRange = timeRange;
             this.ProbabilityThreshold = probabilityThreshold;
             this.TreeBuilder = (rn, n, r, p) =>
@@ -89,7 +89,7 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         private void ProbabilityAssignment()
         {
-            foreach (TreeNode root in Roots)
+            foreach (PredictiveTreeNode root in Roots)
             {
                 TraverseSubtree(forest[root.Id], n =>
                 {
@@ -120,7 +120,7 @@ namespace QueryProcessing.DataStructures
                 Debug.Assert(forest.ContainsKey(roadNode.Id));
                 TraverseSubtree(forest[roadNode.Id], id => included.Add(id));
 
-                TreeNode parent = forest[roadNode.Id].Parent;
+                PredictiveTreeNode parent = forest[roadNode.Id].Parent;
                 if (parent != null)
                 {
                     forest[parent.Id].RemoveChild(forest[roadNode.Id]);
@@ -132,7 +132,7 @@ namespace QueryProcessing.DataStructures
             // Remove relation between included children nodes that have parents which will be excluded
             foreach (int nodeId in included)
             {
-                TreeNode parent = forest[nodeId].Parent;
+                PredictiveTreeNode parent = forest[nodeId].Parent;
                 if (parent != null && !included.Contains(parent.Id))
                 {
                     forest[parent.Id].RemoveChild(forest[nodeId]);
@@ -142,7 +142,7 @@ namespace QueryProcessing.DataStructures
             }
             
             // Remove all execluded nodes and add them to the exclude list.
-            foreach (TreeNode root in Roots)
+            foreach (PredictiveTreeNode root in Roots)
             {
                 RemoveSubtree(root, n => !included.Contains(n)).ForEach(n => execluded.Add(n));
             }
@@ -161,18 +161,18 @@ namespace QueryProcessing.DataStructures
 
             foreach (RoadNetworkNode root in roots)
             {
-                Queue<TreeNode> nodes = new Queue<TreeNode>();
-                TreeNode rootNode = TreeBuilder(RoadNetwork, root, TimeRange, ProbabilityThreshold);
+                Queue<PredictiveTreeNode> nodes = new Queue<PredictiveTreeNode>();
+                PredictiveTreeNode rootNode = TreeBuilder(RoadNetwork, root, TimeRange, ProbabilityThreshold);
                 Debug.Assert(rootNode.Parent == null);
                 nodes.Enqueue(rootNode);
 
                 while (nodes.Count != 0)
                 {
-                    TreeNode node = nodes.Dequeue();
+                    PredictiveTreeNode node = nodes.Dequeue();
 
                     if (!execluded.Contains(node.Id))
                     {
-                        TreeNode forestNode = null;
+                        PredictiveTreeNode forestNode = null;
                         bool exists = forest.TryGetValue(node.Id, out forestNode);
 
                         if (exists && node.DistanceToRoot < forestNode.DistanceToRoot)
@@ -202,7 +202,7 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         /// <param name="subtreeRoot">The subtree root node</param>
         /// <param name="action">Custom action to apply for every node in the subtree.</param>
-        private void TraverseSubtree(TreeNode subtreeRoot, Action<int> action)
+        private void TraverseSubtree(PredictiveTreeNode subtreeRoot, Action<int> action)
         {
             Queue<int> current = new Queue<int>();
             current.Enqueue(subtreeRoot.Id);
@@ -220,7 +220,7 @@ namespace QueryProcessing.DataStructures
         /// <param name="subtreeRoot">The subtree root node</param>
         /// <param name="condition">The remove condition which if true the node will be removed.</param>
         /// <returns></returns>
-        private List<int> RemoveSubtree(TreeNode subtreeRoot, Predicate<int> condition)
+        private List<int> RemoveSubtree(PredictiveTreeNode subtreeRoot, Predicate<int> condition)
         {
             Stack<int> subtree = new Stack<int>();
             List<int> removedIds = new List<int>();
@@ -247,7 +247,7 @@ namespace QueryProcessing.DataStructures
         /// Removes a single node from the forest.
         /// </summary>
         /// <param name="node">The node to remove.</param>
-        private void RemoveNode(TreeNode node)
+        private void RemoveNode(PredictiveTreeNode node)
         {
             if (node.Parent != null)
             {
@@ -265,12 +265,12 @@ namespace QueryProcessing.DataStructures
         /// Adds a node to the forest.
         /// </summary>
         /// <param name="node">The node to add.</param>
-        private void AddNode(TreeNode node)
+        private void AddNode(PredictiveTreeNode node)
         {
             Debug.Assert(!execluded.Contains(node.Id));
             Debug.Assert(!forest.ContainsKey(node.Id));
             Debug.Assert(node.Parent == null || forest.ContainsKey(node.Parent.Id));
-            TreeNode clone = node.Clone(node.Parent == null ? null : forest[node.Parent.Id]);
+            PredictiveTreeNode clone = node.Clone(node.Parent == null ? null : forest[node.Parent.Id]);
             Debug.Assert(clone.Children.Count == 0);
 
             forest.Add(node.Id, clone);
@@ -296,7 +296,7 @@ namespace QueryProcessing.DataStructures
         /// Gets the enumerator for the predictive forest.
         /// </summary>
         /// <returns>The IEnumerable object</returns>
-        public IEnumerator<TreeNode> GetEnumerator()
+        public IEnumerator<PredictiveTreeNode> GetEnumerator()
         {
             return forest.Values.GetEnumerator();
         }
@@ -348,7 +348,7 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         /// <param name="key">The node id</param>
         /// <returns>The node object</returns>
-        public TreeNode this[int key]
+        public PredictiveTreeNode this[int key]
         {
             get { return forest[key]; }
             set { forest[key] = value; }
@@ -359,7 +359,7 @@ namespace QueryProcessing.DataStructures
         /// </summary>
         /// <param name="key">The node id</param>
         /// <returns>The node itself if the key is present in the forest, null otherwise</returns>
-        public TreeNode GetNode(int key)
+        public PredictiveTreeNode GetNode(int key)
         {
             if (forest.ContainsKey(key))
             {

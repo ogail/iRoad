@@ -57,7 +57,7 @@ namespace QueryProcessing.DataStructures.Experiments
                         continue;
                     }
 
-                    TreeNode predictedNext = forest.Roots.SelectMany(r => r.Children).FirstOrDefault(n => n.Id == next.Id);
+                    PredictiveTreeNode predictedNext = forest.Roots.SelectMany(r => r.Children).FirstOrDefault(n => n.Id == next.Id);
                     if (predictedNext != null)
                     {
                         probabilities[counter++].Add(predictedNext.Probability);
