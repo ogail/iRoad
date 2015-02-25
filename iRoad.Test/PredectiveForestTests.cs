@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using System.Linq;
 using System.IO;
+using iRoad.Test;
 
 namespace iRoad.PredictiveForestTest
 {
@@ -36,7 +37,7 @@ namespace iRoad.PredictiveForestTest
             generatedTrees = new Dictionary<string, Dictionary<int, PredictiveTreeNode>>();
             pForest = new PredictiveForest(mockRoadNetworks.Object, timeRange, probabilityThreshold);
             pForest.TreeBuilder = MockTreeBuilder;
-            GenerateTree("Resources\\forests.txt");
+            GenerateTree();
         }
 
         private void GenerateRoadNetworkRoots(params int[] ids)
@@ -53,9 +54,9 @@ namespace iRoad.PredictiveForestTest
             return generatedTrees[currentTest][roadNode.Id];
         }
 
-        private void GenerateTree(string path)
+        private void GenerateTree()
         {
-            IEnumerable<string> lines = File.ReadLines(path);
+            IEnumerable<string> lines = Resources.Forests.Split(new string[] { "\r\n" }, System.StringSplitOptions.RemoveEmptyEntries);
             string currentForest = null;
 
             foreach (string line in lines)
