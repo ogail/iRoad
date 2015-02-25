@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredictiveForest", "PredictiveForest\PredictiveForest.csproj", "{655D9048-4914-4E9E-840A-06940827081F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRoad", "iRoad\iRoad.csproj", "{655D9048-4914-4E9E-840A-06940827081F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredictiveForestTest", "PredictiveForestTest\PredictiveForestTest.csproj", "{D82E08AA-79CA-4C6E-9F69-8FF23233408E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRoad.Test", "iRoad.Test\iRoad.Test.csproj", "{D82E08AA-79CA-4C6E-9F69-8FF23233408E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{18E3AF71-25DD-4D75-BC1E-C4EB02B8D461}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experiments", "Experiments\Experiments.csproj", "{A6313110-78BA-4866-A0D1-7EDA3A4AB6D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRoad.Experiments", "iRoad.Experiments\iRoad.Experiments.csproj", "{A6313110-78BA-4866-A0D1-7EDA3A4AB6D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -126,7 +126,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
         public void BuildingSimplePredectiveForestTest()
         {
             GenerateRoadNetworkRoots(0, 1);
-            Region region = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()));
+            Region region = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()), 0);
             currentTest = "simple forest";
             pForest.Predict(region);
 
@@ -139,7 +139,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
         public void MergingNodesTest()
         {
             GenerateRoadNetworkRoots(0, 1);
-            Region region = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()));
+            Region region = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()), 0);
             currentTest = "conflict forest";
             pForest.Predict(region);
 
@@ -158,7 +158,7 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(2, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(3, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()));
+            Region region1 = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
@@ -190,8 +190,8 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(8, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(3, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(3, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
@@ -229,8 +229,8 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(6, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(8, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
@@ -264,8 +264,8 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(1, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(8, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
@@ -299,8 +299,8 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(7, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(8, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
@@ -343,9 +343,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
                 new RoadNetworkNode(3, It.IsAny<double>(), It.IsAny<double>()),
                 new RoadNetworkNode(2, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
-            Region region3 = new Region(new Coordinates(3, 3));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
+            Region region3 = new Region(new Coordinates(3, 3), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(3, region2.Center.Latitude, region2.Center.Longitude);
             RoadNetworkNode center3 = new RoadNetworkNode(2, region2.Center.Latitude, region2.Center.Longitude);
@@ -394,9 +394,9 @@ namespace QueryProcessing.DataStructures.PredictiveForestTest
             {
                 new RoadNetworkNode(14, It.IsAny<double>(), It.IsAny<double>())
             };
-            Region region1 = new Region(new Coordinates(1, 1));
-            Region region2 = new Region(new Coordinates(2, 2));
-            Region region3 = new Region(new Coordinates(3, 3));
+            Region region1 = new Region(new Coordinates(1, 1), 0);
+            Region region2 = new Region(new Coordinates(2, 2), 0);
+            Region region3 = new Region(new Coordinates(3, 3), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             RoadNetworkNode center2 = new RoadNetworkNode(0, region2.Center.Latitude, region2.Center.Longitude);
             RoadNetworkNode center3 = new RoadNetworkNode(0, region3.Center.Latitude, region3.Center.Longitude);

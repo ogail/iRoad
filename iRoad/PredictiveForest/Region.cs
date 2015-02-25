@@ -22,10 +22,5 @@ namespace QueryProcessing.DataStructures
             Center = center;
             Radius = radius;
         }
-
-        public Region(Coordinates center) : 
-            this(center, 0.0)
-        {
-        }
     }
 }

@@ -59,9 +59,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PredictiveForest\PredictiveForest.csproj">
+    <ProjectReference Include="..\iRoad\iRoad.csproj">
       <Project>{655d9048-4914-4e9e-840a-06940827081f}</Project>
-      <Name>PredictiveForest</Name>
+      <Name>iRoad</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

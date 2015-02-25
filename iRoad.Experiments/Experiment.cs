@@ -25,11 +25,14 @@ namespace QueryProcessing.DataStructures.Experiments
 
         public bool Accumulate { get; private set; }
 
-        public Experiment(string dataDirectory, string input, bool accumulate)
+        public double Radius { get; private set; }
+
+        public Experiment(string dataDirectory, string input, double radius, bool accumulate)
         {
             DataDirectory = dataDirectory;
             Input = input;
             Accumulate = accumulate;
+            Radius = radius;
             ResultsJson = new JObject();
             Results = new StringBuilder();
             if (RoadNetwork == null)
@@ -64,6 +67,8 @@ namespace QueryProcessing.DataStructures.Experiments
                 paths.Add(Path.Combine(DataDirectory, Input));
             }
 
+            Results.AppendFormat("Radius: {0}\n", Radius);
+
             foreach (string path in paths)
             {
                 Console.WriteLine(string.Format("Start conducting experiment for file {0}", path));
@@ -71,7 +76,6 @@ namespace QueryProcessing.DataStructures.Experiments
 
                 if (!Accumulate)
                 {
-                    //Save(string.Format("{0}.{1}", GetType().Name, Path.GetFileName(path)));
                     Results.AppendFormat("{0}.{1}:\n{2}\n", GetType().Name, Path.GetFileName(path), ResultsJson.ToString(Formatting.Indented));
                     ResultsJson = new JObject();
                 }
@@ -79,7 +83,6 @@ namespace QueryProcessing.DataStructures.Experiments
 
             if (Accumulate)
             {
-                //Save(string.Format("{0}.{1}.txt", GetType().Name, Path.GetFileName(Input)));
                 Results.AppendFormat("{0}.{1}.txt:\n{2}\n", GetType().Name, Path.GetFileName(Input), ResultsJson.ToString(Formatting.Indented));
             }
 
@@ -88,7 +91,7 @@ namespace QueryProcessing.DataStructures.Experiments
 
         private void Save()
         {
-            string path = DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture) + ".txt";
+            string path = string.Format("r={0}-{1}.txt", Radius, DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture));
             File.WriteAllText(path, Results.ToString());
             Console.WriteLine(string.Format("Results for experiment are saved in {0}", path));
         }

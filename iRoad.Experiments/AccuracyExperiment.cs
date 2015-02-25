@@ -10,12 +10,21 @@ namespace QueryProcessing.DataStructures.Experiments
 {
     public class AccuracyExperiment : Experiment
     {
+        private List<int> rootCounts;
+
         public int Steps { get; set; }
 
-        public AccuracyExperiment(string dataDirectory, string input, bool accumulate, int steps) :
-            base(dataDirectory, input, accumulate)
+        public int MaxRoots { get; private set; }
+
+        public int MinRoots { get; private set; }
+
+        public double AverageRoots { get; private set; }
+
+        public AccuracyExperiment(string dataDirectory, string input, double radius, bool accumulate, int steps) :
+            base(dataDirectory, input, radius, accumulate)
         {
             Steps = steps;
+            rootCounts = new List<int>();
         }
 
         protected override void Conduct(string path)
@@ -33,25 +42,17 @@ namespace QueryProcessing.DataStructures.Experiments
             foreach (string line in lines)
             {
                 string[] splitted = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Debug.Assert(splitted.Length == 4);
                 Console.WriteLine(string.Format("Predicting for step {0}", splitted[0]));
-                Region region = new Region(new Coordinates(double.Parse(splitted[1]), double.Parse(splitted[2])));
+                Region region = new Region(new Coordinates(double.Parse(splitted[1]), double.Parse(splitted[2])), Radius);
+                rootCounts.Add(forest.Roots.Count);
 
                 if (forest.Roots.Count != 0)
                 {
-                    RoadNetworkNode next = null;
+                    RoadNetworkNode next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude, int.Parse(splitted[3]));
 
-                    if (splitted.Length == 3)
-                    {
-                        next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude);
-                    }
-                    else
-                    {
-                        Debug.Assert(splitted.Length == 4);
-                        next = RoadNetwork.Nearest(region.Center.Latitude, region.Center.Longitude, int.Parse(splitted[3]));
-                    }
-
-                    // Remove this line when changing to Forest
-                    if (forest.Roots.Any(r => r.Id == next.Id))
+                    // Don't predict for the same root node again
+                    if (forest.Roots.Count == 1 && forest.Roots[0].Id == next.Id)
                     {
                         continue;
                     }
@@ -81,6 +82,14 @@ namespace QueryProcessing.DataStructures.Experiments
             {
                 ResultsJson[pair.Key.ToString()] = pair.Value.Count > 0 ? pair.Value.Average() : 0;
             }
+
+            MaxRoots = rootCounts.Max();
+            MinRoots = rootCounts.Min();
+            AverageRoots = rootCounts.Average();
+
+            ResultsJson["RootsMax"] = MaxRoots;
+            ResultsJson["RootsMin"] = MinRoots;
+            ResultsJson["RootsAverage"] = AverageRoots;
         }
     }
 }
