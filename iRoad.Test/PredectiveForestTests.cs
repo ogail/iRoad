@@ -56,7 +56,7 @@ namespace iRoad.PredictiveForestTest
 
         private void GenerateTree()
         {
-            IEnumerable<string> lines = Resources.Forests.Split(new string[] { "\r\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+            IEnumerable<string> lines = Resources.Forests.Split(new string[] { "\r\n", "\n", "\r" }, System.StringSplitOptions.RemoveEmptyEntries);
             string currentForest = null;
 
             foreach (string line in lines)
