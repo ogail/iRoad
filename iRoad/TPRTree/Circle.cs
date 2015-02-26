@@ -13,32 +13,51 @@ namespace iRoad
 
         public double Radius { get; set; }
 
+        private bool IsInsideCircle(Coordinates location)
+        {
+            return Math.Sqrt(Math.Pow((Center.Latitude - location.Latitude), 2) +
+                   Math.Pow((Center.Longitude - location.Longitude), 2)) < Radius;
+        }
+
+        private bool IsIntersecting(Line line)
+        {
+            return IsInsideCircle(line.Start) || IsInsideCircle(line.End);
+        }
+
         /// <summary>
-        /// Calculates the intersection point between a given line and the current circle.
+        /// Calculates the intersection Coordinates between a given line and the current circle.
         /// Used algorithm is documented here: http://mathworld.wolfram.com/Circle-LineIntersection.html
         /// </summary>
         /// <param name="v">The line to intersect with</param>
         /// <returns>The intersection points</returns>
         public Tuple<Coordinates, Coordinates> Intersect(Line v)
         {
-            double dx = v.End.Latitude - v.Start.Latitude;
-            double dy = v.End.Longitude - v.Start.Longitude;
-            double dr = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
-            double D = (v.Start.Latitude * v.End.Longitude) - (v.End.Latitude * v.Start.Longitude);
-            double discriminant = (Math.Pow(Radius, 2) * Math.Pow(dr, 2)) - Math.Pow(D, 2);
-            Debug.Assert(discriminant > 0);
-         
-            Func<double, double, double> solve = (double a, double b) =>
+            if (IsIntersecting(v))
             {
-                return ((a + b) * Math.Sqrt((Math.Pow(Radius, 2) * Math.Pow(dr, 2)) - Math.Pow(D, 2))) / Math.Pow(dr, 2);
-            };
-            
-            double x1 = solve(D * dy, (dy < 0 ? -1 : 1) * dx);
-            double x2 = solve(D * dy, - (dy < 0 ? -1 : 1) * dx);
-            double y1 = solve(-D * dx, Math.Abs(dy));
-            double y2 = solve(-D * dx, - Math.Abs(dy));
+                //Calculate terms of the linear and quadratic equations
+                var M = (v.End.Longitude - v.Start.Longitude) / (v.End.Latitude - v.Start.Latitude);
+                var B = v.Start.Longitude - M * v.Start.Latitude;
+                var a = 1 + M * M;
+                var b = 2 * (M * B - M * Center.Longitude - Center.Latitude);
+                var c = Center.Latitude * Center.Latitude + B * B + Center.Longitude * Center.Longitude - Radius * Radius - 2 * B * Center.Longitude;
+                // solve quadratic equation
+                var sqRtTerm = Math.Sqrt(b * b - 4 * a * c);
+                var x1 = ((-b) + sqRtTerm) / (2 * a);
+                var y1 = M * x1 + B;
+                var x2 = ((-b) - sqRtTerm) / (2 * a);
+                var y2 = M * x2 + B;
+                // Intersection Calculated
 
-            return Tuple.Create(new Coordinates(x1, y1), new Coordinates(x2, y2));
+                return Tuple.Create(new Coordinates(x1, y1), new Coordinates(x2, y2));
+            }
+            else
+            {
+                // Line segment does not intersect at one point.  It is either 
+                // fully outside, fully inside, intersects at two points, is 
+                // tangential to, or one or more points is exactly on the 
+                // circle radius.
+                return Tuple.Create(new Coordinates(double.NaN, double.NaN), new Coordinates(double.NaN, double.NaN));
+            }
         }
     }
 }

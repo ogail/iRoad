@@ -24,7 +24,7 @@ namespace iRoad.Experiments
         {
             get
             {
-                return string.Format("acc-pf-r=:{0}-", Radius);
+                return string.Format("acc-pf-r-{0}-", Radius);
             }
         }
 
@@ -52,7 +52,7 @@ namespace iRoad.Experiments
                     // Don't predict for the same root node again
                     if (previous != null && previous.Id == next.Id)
                     {
-                        Debug.Assert(forest.Roots.Count == 1 && forest.Roots[0].Id == next.Id);
+                        //Debug.Assert(forest.Roots.Count == 1 && forest.Roots[0].Id == next.Id);
                         continue;
                     }
 

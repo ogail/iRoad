@@ -27,12 +27,20 @@ namespace iRoad.Experiments
         protected override void Conduct(List<string> lines)
         {
             TPRTree tree = new TPRTree(RoadNetwork);
+            int i = 0;
 
-            for (int i = 0; i < lines.Count(); i +=3)
+            while (i < lines.Count)
             {
-                RoadNetworkNode nodeA = GetNode(lines[i]);
-                RoadNetworkNode nodeB = GetNode(lines[i + 1]);
-                RoadNetworkNode nodeC = GetNode(lines[i + 2]);
+                RoadNetworkNode nodeA = null, nodeB = null, nodeC = null;
+                nodeA = GetNode(lines[i++]);
+                while (i < lines.Count && (nodeB == null || nodeB.Id == nodeA.Id)) { nodeB = GetNode(lines[i++]); }
+                while (i < lines.Count && (nodeC == null || nodeC.Id == nodeA.Id || nodeC.Id == nodeB.Id)) { nodeC = GetNode(lines[i++]); }
+
+                if (nodeA == null || nodeB == null || nodeC == null)
+                {
+                    break;
+                }
+
                 AddProbability(tree.Predict(nodeA, nodeB, nodeC));
             }
         }

@@ -23,12 +23,12 @@ namespace iRoad.Experiments
 
             while (radius <= radiusMax)
             {
-                experiments.Add(new PredictiveForestAccuracyExperiment(dataPath, input, true, steps, radius));
+                experiments.Add(new PredictiveForestAccuracyExperiment(dataPath, input, accumelate, steps, radius));
                 radius += radiusIncrease;
             }
 
             // Create TPRTree accuracy experiment
-            experiments.Add(new TPRTreeAccuracyExperiments(dataPath, input, accumelate, steps));
+            //experiments.Add(new TPRTreeAccuracyExperiments(dataPath, input, accumelate, steps));
 
             foreach (Experiment experiment in experiments)
             {
