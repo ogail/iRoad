@@ -47,9 +47,11 @@
   <ItemGroup>
     <Compile Include="AccuracyExperiment.cs" />
     <Compile Include="Experiment.cs" />
+    <Compile Include="PredictiveForestAccuracyExperiment.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TPRTreeAccuracyExperiments.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iRoad\iRoad.csproj">

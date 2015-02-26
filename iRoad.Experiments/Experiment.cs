@@ -25,14 +25,13 @@ namespace iRoad.Experiments
 
         public bool Accumulate { get; private set; }
 
-        public double Radius { get; private set; }
+        protected abstract string ResultsFilePrefix { get; }
 
-        public Experiment(string dataDirectory, string input, double radius, bool accumulate)
+        public Experiment(string dataDirectory, string input, bool accumulate)
         {
             DataDirectory = dataDirectory;
             Input = input;
             Accumulate = accumulate;
-            Radius = radius;
             ResultsJson = new JObject();
             Results = new StringBuilder();
             if (RoadNetwork == null)
@@ -67,8 +66,6 @@ namespace iRoad.Experiments
                 paths.Add(Path.Combine(DataDirectory, Input));
             }
 
-            Results.AppendFormat("Radius: {0}\n", Radius);
-
             foreach (string path in paths)
             {
                 Console.WriteLine(string.Format("Start conducting experiment for file {0}", path));
@@ -91,7 +88,7 @@ namespace iRoad.Experiments
 
         private void Save()
         {
-            string path = string.Format("r={0}-{1}{2}.txt", Radius, Accumulate ? "avg-" : "",  DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture));
+            string path = string.Format("{0}{1}{2}.txt", ResultsFilePrefix, Accumulate ? "avg-" : "", DateTime.Now.ToString("yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture));
             File.WriteAllText(path, Results.ToString());
             Console.WriteLine(string.Format("Results for experiment are saved in {0}", path));
         }

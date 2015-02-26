@@ -11,9 +11,10 @@ namespace iRoad.Experiments
         static void Main(string[] args)
         {
             string dataPath = @"C:\projects\iRoad-old\Data";
+            string input = @"C:\projects\iRoad-old\Data\AccuracyInput";
+            bool accumelate = true;
+            int steps = 6;
             List<Experiment> experiments = new List<Experiment>();
-
-            //experiments.Add(new AccuracyExperiment(dataPath, @"C:\projects\iRoad\Data\AccuracyInput\object_0.txt", 0, false, 6));
 
             // Create accuracy experiments
             double radius = 0.0;
@@ -22,9 +23,12 @@ namespace iRoad.Experiments
 
             while (radius <= radiusMax)
             {
-                experiments.Add(new AccuracyExperiment(dataPath, @"C:\projects\iRoad-old\Data\AccuracyInput", radius, true, 6));
+                experiments.Add(new PredictiveForestAccuracyExperiment(dataPath, input, true, steps, radius));
                 radius += radiusIncrease;
             }
+
+            // Create TPRTree accuracy experiment
+            experiments.Add(new TPRTreeAccuracyExperiments(dataPath, input, accumelate, steps));
 
             foreach (Experiment experiment in experiments)
             {
