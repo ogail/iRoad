@@ -22,7 +22,7 @@ namespace iRoad
         public int Predict(RoadNetworkNode nodeA, RoadNetworkNode nodeB, RoadNetworkNode nodeC)
         {
             Line = new Line { Start = nodeA.Location, End = nodeB.Location };
-            double distance = Math.Abs(RoadNetworks.DistanceInKM(nodeA.Location, nodeC.Location));
+            double distance = RoadNetworks.DistanceInKM(nodeA.Location, nodeB.Location);
             Circle = new Circle { Center = nodeA.Location, Radius = distance };
             Tuple<Coordinates, Coordinates> intersection = Circle.Intersect(Line);
             RoadNetworkNode nearest1 = RoadNetworks.Nearest(intersection.Item1.Latitude, intersection.Item1.Longitude);

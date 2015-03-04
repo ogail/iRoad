@@ -17,6 +17,13 @@ namespace iRoad
             this.Longitude = lng;
         }
 
+        public static Coordinates operator - (Coordinates right, Coordinates left)
+        {
+            return new Coordinates(
+                left.Latitude - right.Latitude,
+                left.Longitude - right.Longitude);
+        }
+
         public String myToString()
         {
             return Latitude + "\t" + Longitude;

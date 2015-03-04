@@ -52,7 +52,7 @@
     <Compile Include="PredictiveTree\PredictiveTreeNode.cs" />
     <Compile Include="TPRTree\Circle.cs" />
     <Compile Include="TPRTree\TPRTree.cs" />
-    <Compile Include="TPRTree\Vector2.cs" />
+    <Compile Include="TPRTree\Line.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

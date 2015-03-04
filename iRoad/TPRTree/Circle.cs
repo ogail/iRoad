@@ -35,17 +35,17 @@ namespace iRoad
             if (IsIntersecting(v))
             {
                 //Calculate terms of the linear and quadratic equations
-                var M = (v.End.Longitude - v.Start.Longitude) / (v.End.Latitude - v.Start.Latitude);
-                var B = v.Start.Longitude - M * v.Start.Latitude;
-                var a = 1 + M * M;
-                var b = 2 * (M * B - M * Center.Longitude - Center.Latitude);
-                var c = Center.Latitude * Center.Latitude + B * B + Center.Longitude * Center.Longitude - Radius * Radius - 2 * B * Center.Longitude;
+                double M = (v.End.Longitude - v.Start.Longitude) / (v.End.Latitude - v.Start.Latitude);
+                double B = v.Start.Longitude - M * v.Start.Latitude;
+                double a = 1 + M * M;
+                double b = 2 * (M * B - M * Center.Longitude - Center.Latitude);
+                double c = Center.Latitude * Center.Latitude + B * B + Center.Longitude * Center.Longitude - Radius * Radius - 2 * B * Center.Longitude;
                 // solve quadratic equation
-                var sqRtTerm = Math.Sqrt(b * b - 4 * a * c);
-                var x1 = ((-b) + sqRtTerm) / (2 * a);
-                var y1 = M * x1 + B;
-                var x2 = ((-b) - sqRtTerm) / (2 * a);
-                var y2 = M * x2 + B;
+                double sqRtTerm = Math.Sqrt(b * b - 4 * a * c);
+                double x1 = ((-b) + sqRtTerm) / (2 * a);
+                double y1 = M * x1 + B;
+                double x2 = ((-b) - sqRtTerm) / (2 * a);
+                double y2 = M * x2 + B;
                 // Intersection Calculated
 
                 return Tuple.Create(new Coordinates(x1, y1), new Coordinates(x2, y2));
