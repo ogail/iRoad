@@ -40,6 +40,23 @@ namespace iRoad.PredictiveForestTest
             Assert.True(intersection.Item2.Longitude < -3.5);
         }
 
+        [Fact(Skip = "The test is skipped because the intersection code is busted")]
+        public void TestRealCircleIntersection()
+        {
+            RoadNetworks roadNetworks = new RoadNetworks();
+            Coordinates pointA = new Coordinates(47.6690602, -122.13593);
+            Coordinates pointB = new Coordinates(47.6697653, -122.137741);
+            Coordinates pointC = new Coordinates(47.6690024, -122.1377496);
+
+            Circle c = new Circle { Center = pointA, Radius = roadNetworks.DistanceInKM(pointA, pointB) };
+            Line l = new Line { Start = pointA, End = pointB };
+
+            Tuple<Coordinates, Coordinates> intersection = c.Intersect(l);
+            double distance1 = roadNetworks.DistanceInKM(intersection.Item1, pointC);
+            double distance2 = roadNetworks.DistanceInKM(intersection.Item2, pointC);
+            Assert.True((distance1 < 2 * c.Radius) || (distance2 < 2 * c.Radius));
+        }
+
         [Fact]
         public void TestTPRTreePredictionSuccessful()
         {
