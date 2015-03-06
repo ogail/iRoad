@@ -17,21 +17,16 @@ namespace iRoad
             this.Longitude = lng;
         }
 
-        public static Coordinates operator - (Coordinates right, Coordinates left)
+        /// <summary>
+        /// Returns Euclidean-Distance between two coordinates in plane.
+        /// distance = sqrt( (p1.y - p2.y)^2 + (p1.x - p2.x)^2 )
+        /// </summary>
+        /// <param name="c1">First Coordinate </param>
+        /// <param name="c2">Second Coordinate </param>
+        /// <returns></returns>
+        public static double EuclideanDistance(Coordinates c1, Coordinates c2)
         {
-            return new Coordinates(
-                left.Latitude - right.Latitude,
-                left.Longitude - right.Longitude);
-        }
-
-        public String myToString()
-        {
-            return Latitude + "\t" + Longitude;
-        }
-
-        public String myToFileString()
-        {
-            return Latitude + "," + Longitude;
+            return Math.Sqrt(Math.Pow(c1.Latitude - c2.Latitude, 2) + Math.Pow(c1.Longitude - c2.Longitude, 2));
         }
     }
 }

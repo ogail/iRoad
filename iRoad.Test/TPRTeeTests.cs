@@ -10,6 +10,8 @@ namespace iRoad.PredictiveForestTest
 {
     public class TPRTreeTests
     {
+        private readonly double Elipson = Math.Pow(Math.E, -7);
+
         /// <summary>
         /// The test below uses:
         /// - Line equation: y = 1 * x + 0
@@ -40,7 +42,7 @@ namespace iRoad.PredictiveForestTest
             Assert.True(intersection.Item2.Longitude < -3.5);
         }
 
-        [Fact(Skip = "The test is skipped because the intersection code is busted")]
+        [Fact]
         public void TestRealCircleIntersection()
         {
             RoadNetworks roadNetworks = new RoadNetworks();
@@ -48,12 +50,12 @@ namespace iRoad.PredictiveForestTest
             Coordinates pointB = new Coordinates(47.6697653, -122.137741);
             Coordinates pointC = new Coordinates(47.6690024, -122.1377496);
 
-            Circle c = new Circle { Center = pointA, Radius = roadNetworks.DistanceInKM(pointA, pointB) };
+            Circle c = new Circle { Center = pointA, Radius = Coordinates.EuclideanDistance(pointA, pointB) };
             Line l = new Line { Start = pointA, End = pointB };
 
             Tuple<Coordinates, Coordinates> intersection = c.Intersect(l);
-            double distance1 = roadNetworks.DistanceInKM(intersection.Item1, pointC);
-            double distance2 = roadNetworks.DistanceInKM(intersection.Item2, pointC);
+            double distance1 = Coordinates.EuclideanDistance(intersection.Item1, pointC);
+            double distance2 = Coordinates.EuclideanDistance(intersection.Item2, pointC);
             Assert.True((distance1 < 2 * c.Radius) || (distance2 < 2 * c.Radius));
         }
 
