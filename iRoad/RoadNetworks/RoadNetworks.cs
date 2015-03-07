@@ -59,7 +59,7 @@ namespace iRoad
 
                     RoadNetworkNode from = this.Nodes[From];
                     RoadNetworkNode to = this.Nodes[To];
-                    Edge e = new Edge(EdgeID, from, to, Cost);
+                    Edge e = new Edge(EdgeID, from, to, CreateEdgeCost(Cost));
                     from.OutEdges.Add(to, e);
                     to.InEdges.Add(from, e);
                     this.Edges.Add(EdgeID, e);
@@ -69,6 +69,17 @@ namespace iRoad
             }
 
             tr.Close();
+        }
+
+        private Dictionary<int, Tuple<int, int>> CreateEdgeCost(int Cost)
+        {
+            Dictionary<int, Tuple<int, int>> cost = new Dictionary<int, Tuple<int, int>>();
+            for (int i = 1; i <= 24; i++)
+            {
+                cost[i] = Tuple.Create(Cost, Cost);
+            }
+
+            return cost;
         }
 
 
@@ -301,7 +312,7 @@ namespace iRoad
                 for (int j = j1; j <= j2; j++)
                 {
                     int cellid = i * gridsize + j;
-                    SpatialIndex[cellid].Add(e.EdgeID, e);
+                    SpatialIndex[cellid].Add(e.Id, e);
 
                 }
             }

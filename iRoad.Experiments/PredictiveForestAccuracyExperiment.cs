@@ -20,13 +20,7 @@ namespace iRoad.Experiments
 
         public double Radius { get; private set; }
 
-        protected override string ResultsFilePrefix
-        {
-            get
-            {
-                return string.Format("acc-pf-r-{0}-", Radius);
-            }
-        }
+        protected override string ResultsFilePrefix { get { return string.Format("acc-pf-r-{0}-", Radius); } }
 
         public PredictiveForestAccuracyExperiment(string dataDirectory, string input, bool accumulate, int steps, double radius) :
             base(dataDirectory, input, accumulate, steps)
@@ -37,7 +31,7 @@ namespace iRoad.Experiments
 
         protected override void Conduct(List<string> lines)
         {
-            PredictiveForest forest = new PredictiveForest(RoadNetwork, Constants.timeRange, Constants.probabilityThreshold);
+            PredictiveForest forest = new PredictiveForest(RoadNetwork, Constants.TimeRange, Constants.ProbabilityThreshold);
             Results.AppendFormat("Radius: {0}\n", Radius);
             RoadNetworkNode previous = null;
 

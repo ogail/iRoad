@@ -70,7 +70,7 @@ namespace iRoad.PredictiveForestTest
             mockRoadNetworks.Setup(f => f.DistanceInKM(n1.Location, n3.Location)).Returns(-5);
             mockRoadNetworks.Setup(f => f.Nearest(It.IsAny<double>(), It.IsAny<double>())).Returns(n3);
 
-            double probability = new TPRTree(mockRoadNetworks.Object).Predict(n1, n2, n3);
+            double probability = new TPRTree(mockRoadNetworks.Object, 1).Predict(n1, n2, n3);
 
             Assert.Equal(1, probability);
         }
@@ -87,7 +87,7 @@ namespace iRoad.PredictiveForestTest
             mockRoadNetworks.Setup(f => f.DistanceInKM(n1.Location, n3.Location)).Returns(-5);
             mockRoadNetworks.Setup(f => f.Nearest(It.IsAny<double>(), It.IsAny<double>())).Returns(n4);
 
-            double probability = new TPRTree(mockRoadNetworks.Object).Predict(n1, n2, n3);
+            double probability = new TPRTree(mockRoadNetworks.Object, 1).Predict(n1, n2, n3);
 
             Assert.Equal(0, probability);
         }

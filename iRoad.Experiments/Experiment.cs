@@ -39,11 +39,11 @@ namespace iRoad.Experiments
                 RoadNetwork = new RoadNetworks();
                 RoadNetwork.ReadRoadNetworks(
                     DataDirectory,
-                    Constants.inboxMaxCoordinates,
-                    Constants.inboxMinCoordinates,
-                    Constants.nodesFilename,
-                    Constants.edgesFileName,
-                    Constants.edgeGeometeryFileName);
+                    Constants.InboxMaxCoordinates,
+                    Constants.InboxMinCoordinates,
+                    Constants.NodesFilename,
+                    Constants.EdgesFileName,
+                    Constants.EdgeGeometeryFileName);
             }
         }
 

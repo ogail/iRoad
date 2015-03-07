@@ -11,22 +11,19 @@ namespace iRoad.Experiments
 {
     public class TPRTreeAccuracyExperiments : AccuracyExperiment
     {
-        public TPRTreeAccuracyExperiments(string dataDirectory, string input, bool accumulate, int steps) :
+        public double Radius { get; set; }
+
+        public TPRTreeAccuracyExperiments(string dataDirectory, string input, bool accumulate, int steps, double radius) :
             base(dataDirectory, input, accumulate, steps)
         {
+            Radius = radius;
         }
 
-        protected override string ResultsFilePrefix
-        {
-            get
-            {
-                return "acc-tpr-";
-            }
-        }
+        protected override string ResultsFilePrefix { get { return string.Format("acc-tpr-r-{0}-", Radius); ; } }
 
         protected override void Conduct(List<string> lines)
         {
-            TPRTree tree = new TPRTree(RoadNetwork);
+            TPRTree tree = new TPRTree(RoadNetwork, Radius);
             int i = 0;
 
             while (i < lines.Count)

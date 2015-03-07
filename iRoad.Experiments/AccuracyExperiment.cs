@@ -20,6 +20,11 @@ namespace iRoad.Experiments
             base(dataDirectory, input, accumulate)
         {
             Steps = steps;
+            probabilities = new Dictionary<int, List<double>>();
+            for (int i = 0; i < Steps; i++)
+            {
+                probabilities[i] = new List<double>();
+            }
         }
 
         protected void AddProbability(double probability)
@@ -32,10 +37,9 @@ namespace iRoad.Experiments
         {
             List<string> lines = File.ReadLines(path).ToList();
             StepCounter = 0;
-            probabilities = new Dictionary<int, List<double>>();
-            for (int i = 0; i < Steps; i++)
+            if (!Accumulate)
             {
-                probabilities[i] = new List<double>();
+                probabilities.Clear();
             }
 
             Conduct(lines);

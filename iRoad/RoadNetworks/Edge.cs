@@ -7,23 +7,53 @@ namespace iRoad
 {
     public class Edge
     {
-        public int EdgeID;
-        public RoadNetworkNode From;   //Start node id
-        public RoadNetworkNode To;         //End node id
-        public int  Cost; // time to travel this segment
-        public string Name;
-        public string Type;
-        //public double probability;
-        public List<Coordinates> Shape;
-        public Coordinates MAX;
-        public Coordinates MIN;
+        /// <summary>
+        /// Edge id.
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
+        /// Start node id.
+        /// </summary>
+        public RoadNetworkNode From { get; set; }
 
-        public double Length; // in kilometers
+        /// <summary>
+        /// End node id.
+        /// </summary>
+        public RoadNetworkNode To { get; set; }
+
+        /// <summary>
+        /// The travel time between the From to To nodes.
+        /// </summary>
+        public Dictionary<int, Tuple<int, int>> Cost { get; set; }
+
+        /// <summary>
+        /// The edge name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The edge type.
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The edge shape.
+        /// </summary>
+        public List<Coordinates> Shape { get; set; }
+        
+        public Coordinates MAX { get; set; }
+        
+        public Coordinates MIN { get; set; }
+
+        /// <summary>
+        /// The edge length in kilometers.
+        /// </summary>
+        public double Length { get; set; }
 
         const double _eQuatorialEarthRadius = 6378.1370D;
         const double SecCoDiff = 30.887;
         const double _d2r = (Math.PI / 180D);
-
 
         double DistanceInKM(Coordinates c1, Coordinates c2)
         {
@@ -40,9 +70,9 @@ namespace iRoad
             return d;
         }
 
-        public Edge(int EdgeID, RoadNetworkNode from, RoadNetworkNode to, int cost)
+        public Edge(int EdgeID, RoadNetworkNode from, RoadNetworkNode to, Dictionary<int, Tuple<int, int>> cost)
         {
-            this.EdgeID = EdgeID;
+            this.Id = EdgeID;
             this.From = from;
             this.To = to;
             this.Cost = cost;
@@ -77,7 +107,6 @@ namespace iRoad
             this.Length = DistanceInKM(from.Location, to.Location);
         }
 
-
         public void AddCoordinate(double lat, double lng)
         {
             Coordinates c = new Coordinates(lat, lng);
@@ -103,21 +132,10 @@ namespace iRoad
 
         public Boolean inEdge(Coordinates point)
         {
-            if (point.Latitude <= this.MAX.Latitude && point.Latitude >= this.MIN.Latitude && point.Longitude <= MAX.Longitude && point.Longitude >= MIN.Longitude)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return point.Latitude <= this.MAX.Latitude &&
+                   point.Latitude >= this.MIN.Latitude &&
+                   point.Longitude <= MAX.Longitude &&
+                   point.Longitude >= MIN.Longitude;
         }
-
-        public String myToFileString()
-        {
-            return MAX.Latitude + "," + MAX.Longitude + "," + MIN.Latitude + "," + MIN.Longitude;
-        }
-        //public 
-        //List<>
     }
 }
