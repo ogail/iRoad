@@ -20,13 +20,17 @@ namespace iRoad.Experiments
             base(dataDirectory, input, accumulate)
         {
             Steps = steps;
+            InitializeProbabilities();
+        }
+
+        private void InitializeProbabilities()
+        {
             probabilities = new Dictionary<int, List<double>>();
             for (int i = 0; i < Steps; i++)
             {
                 probabilities[i] = new List<double>();
             }
         }
-
         protected void AddProbability(double probability)
         {
             probabilities[StepCounter++].Add(probability);
@@ -39,7 +43,7 @@ namespace iRoad.Experiments
             StepCounter = 0;
             if (!Accumulate)
             {
-                probabilities.Clear();
+                InitializeProbabilities();
             }
 
             Conduct(lines);

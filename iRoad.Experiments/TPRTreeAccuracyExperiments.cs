@@ -19,7 +19,7 @@ namespace iRoad.Experiments
             Radius = radius;
         }
 
-        protected override string ResultsFilePrefix { get { return string.Format("acc-tpr-r-{0}-", Radius); ; } }
+        protected override string ResultsFilePrefix { get { return string.Format("acc-tpr-r={0}-", Radius); } }
 
         protected override void Conduct(List<string> lines)
         {
@@ -38,7 +38,11 @@ namespace iRoad.Experiments
                     break;
                 }
 
-                AddProbability(tree.Predict(nodeA, nodeB, nodeC));
+                double probability = tree.Predict(nodeA, nodeB, nodeC);
+                if (probability != -1)
+                {
+                    AddProbability(probability);                    
+                }
             }
         }
     }

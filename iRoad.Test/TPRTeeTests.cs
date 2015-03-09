@@ -10,8 +10,6 @@ namespace iRoad.PredictiveForestTest
 {
     public class TPRTreeTests
     {
-        private readonly double Elipson = Math.Pow(Math.E, -7);
-
         /// <summary>
         /// The test below uses:
         /// - Line equation: y = 1 * x + 0
@@ -35,11 +33,9 @@ namespace iRoad.PredictiveForestTest
                 End = new Coordinates(3, 3)
             };
 
-            Tuple<Coordinates, Coordinates> intersection = c.Intersect(l);
-            Assert.True(intersection.Item1.Latitude > 3.5);
-            Assert.True(intersection.Item1.Longitude > 3.5);
-            Assert.True(intersection.Item2.Latitude < -3.5);
-            Assert.True(intersection.Item2.Longitude < -3.5);
+            Coordinates intersection = c.Intersect(l);
+            Assert.Equal(-3.5, intersection.Latitude, 1);
+            Assert.Equal(-3.5, intersection.Longitude, 1);
         }
 
         [Fact]
@@ -53,30 +49,13 @@ namespace iRoad.PredictiveForestTest
             Circle c = new Circle { Center = pointA, Radius = Coordinates.EuclideanDistance(pointA, pointB) };
             Line l = new Line { Start = pointA, End = pointB };
 
-            Tuple<Coordinates, Coordinates> intersection = c.Intersect(l);
-            double distance1 = Coordinates.EuclideanDistance(intersection.Item1, pointC);
-            double distance2 = Coordinates.EuclideanDistance(intersection.Item2, pointC);
-            Assert.True((distance1 < 2 * c.Radius) || (distance2 < 2 * c.Radius));
+            Coordinates intersection = c.Intersect(l);
+            double distance = Coordinates.EuclideanDistance(intersection, pointC);
+            Assert.True(distance < 2 * c.Radius);
         }
 
         [Fact]
-        public void TestTPRTreePredictionSuccessful()
-        {
-            Mock<RoadNetworks> mockRoadNetworks = new Mock<RoadNetworks>();
-            RoadNetworkNode n1 = new RoadNetworkNode(0, 0, 0);
-            RoadNetworkNode n2 = new RoadNetworkNode(1, 3, 3);
-            RoadNetworkNode n3 = new RoadNetworkNode(2, 5, 5);
-
-            mockRoadNetworks.Setup(f => f.DistanceInKM(n1.Location, n3.Location)).Returns(-5);
-            mockRoadNetworks.Setup(f => f.Nearest(It.IsAny<double>(), It.IsAny<double>())).Returns(n3);
-
-            double probability = new TPRTree(mockRoadNetworks.Object, 1).Predict(n1, n2, n3);
-
-            Assert.Equal(1, probability);
-        }
-
-        [Fact]
-        public void TestTPRTreePredictionFail()
+        public void TestTPRTreePrediction()
         {
             Mock<RoadNetworks> mockRoadNetworks = new Mock<RoadNetworks>();
             RoadNetworkNode n1 = new RoadNetworkNode(0, 0, 0);
@@ -85,11 +64,12 @@ namespace iRoad.PredictiveForestTest
             RoadNetworkNode n4 = new RoadNetworkNode(3, 10, 10);
 
             mockRoadNetworks.Setup(f => f.DistanceInKM(n1.Location, n3.Location)).Returns(-5);
+            mockRoadNetworks.Setup(f => f.GetNeighbors(It.IsAny<Coordinates>(), It.IsAny<double>())).Returns(new List<RoadNetworkNode>() { new RoadNetworkNode(1, 12, 3) });
             mockRoadNetworks.Setup(f => f.Nearest(It.IsAny<double>(), It.IsAny<double>())).Returns(n4);
 
             double probability = new TPRTree(mockRoadNetworks.Object, 1).Predict(n1, n2, n3);
 
-            Assert.Equal(0, probability);
+            Assert.Equal(1, probability);
         }
     }
 }

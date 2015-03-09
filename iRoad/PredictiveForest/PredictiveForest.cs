@@ -289,7 +289,8 @@ namespace iRoad
         private List<RoadNetworkNode> GetRegionNodes(Region region)
         {
             RoadNetworkNode centerNode = RoadNetwork.Nearest(Region.Center.Latitude, Region.Center.Longitude);
-            return RoadNetwork.GetNeighbors(centerNode, region.Radius).Where(n => !execluded.Contains(n.Id)).ToList();
+            return RoadNetwork.GetNeighbors(centerNode == null ? new Coordinates(double.NaN, double.NaN) : centerNode.Location, 
+                region.Radius).Where(n => !execluded.Contains(n.Id)).ToList();
         }
 
         /// <summary>

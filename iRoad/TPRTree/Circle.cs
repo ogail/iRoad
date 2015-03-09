@@ -30,7 +30,7 @@ namespace iRoad
         /// </summary>
         /// <param name="v">The line to intersect with</param>
         /// <returns>The intersection points</returns>
-        public Tuple<Coordinates, Coordinates> Intersect(Line v)
+        public Coordinates Intersect(Line v)
         {
             if (IsIntersecting(v))
             {
@@ -41,14 +41,18 @@ namespace iRoad
                 double b = 2 * (M * B - M * Center.Longitude - Center.Latitude);
                 double c = Center.Latitude * Center.Latitude + B * B + Center.Longitude * Center.Longitude - Radius * Radius - 2 * B * Center.Longitude;
                 // solve quadratic equation
-                double sqRtTerm = Math.Sqrt(b * b - 4 * a * c);
-                double x1 = ((-b) + sqRtTerm) / (2 * a);
-                double y1 = M * x1 + B;
-                double x2 = ((-b) - sqRtTerm) / (2 * a);
-                double y2 = M * x2 + B;
+                var sqRtTerm = Math.Sqrt(b * b - 4 * a * c);
+                var x = ((-b) + sqRtTerm) / (2 * a);
+                // make sure we have the correct root for our line segment
+                if ((x < Math.Min(v.Start.Latitude, v.End.Latitude) || (x > Math.Max(v.Start.Latitude, v.End.Latitude))))
+                {
+                    x = ((-b) - sqRtTerm) / (2 * a);
+                }
+                //solve for the y-component
+                var y = M * x + B;
                 // Intersection Calculated
 
-                return Tuple.Create(new Coordinates(x1, y1), new Coordinates(x2, y2));
+                return new Coordinates(x, y);
             }
             else
             {
@@ -56,7 +60,7 @@ namespace iRoad
                 // fully outside, fully inside, intersects at two points, is 
                 // tangential to, or one or more points is exactly on the 
                 // circle radius.
-                return Tuple.Create(new Coordinates(double.NaN, double.NaN), new Coordinates(double.NaN, double.NaN));
+                return new Coordinates(double.NaN, double.NaN);
             }
         }
     }

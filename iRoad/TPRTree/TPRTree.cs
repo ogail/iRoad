@@ -15,7 +15,7 @@ namespace iRoad
 
         public Circle Circle { get; private set; }
 
-        public double Radius { get; private set; }
+        public double Radius { get; set; }
 
         public TPRTree(RoadNetworks roadNetworks, double radius)
         {
@@ -26,17 +26,22 @@ namespace iRoad
         public double Predict(RoadNetworkNode nodeA, RoadNetworkNode nodeB, RoadNetworkNode nodeC)
         {
             Line = new Line { Start = nodeA.Location, End = nodeB.Location };
-            double distance = Coordinates.EuclideanDistance(nodeA.Location, nodeB.Location);
-            Circle = new Circle { Center = nodeA.Location, Radius = distance };
-            Tuple<Coordinates, Coordinates> intersection = Circle.Intersect(Line);
-            RoadNetworkNode nearest1 = RoadNetworks.Nearest(intersection.Item1.Latitude, intersection.Item1.Longitude);
-            RoadNetworkNode nearest2 = RoadNetworks.Nearest(intersection.Item2.Latitude, intersection.Item2.Longitude);
+            double radius = Coordinates.EuclideanDistance(nodeB.Location, nodeC.Location);
+            Circle = new Circle { Center = nodeB.Location, Radius = radius };
+            Coordinates intersection = Circle.Intersect(Line);
 
-            double distance1 = nearest1 != null ? RoadNetworks.DistanceInKM(nearest1.Location, nodeC.Location) : double.MaxValue;
-            double distance2 = nearest2 != null ? RoadNetworks.DistanceInKM(nearest2.Location, nodeC.Location) : double.MaxValue;
-            Debug.Assert(distance1 < Circle.Radius * 2 && distance2 < Circle.Radius * 2);
+            if (intersection.Latitude == double.NaN || intersection.Longitude == double.NaN)
+            {
+                return -1;
+            }
 
-            return Math.Min(distance1, distance2) < Radius ? 1 : 0;
+            double distance = RoadNetworks.DistanceInKM(intersection, nodeC.Location);
+            //Debug.Assert(distance <= Circle.Radius * 2);
+            //Region r = new Region(intersection, distance);
+            List<RoadNetworkNode> neighbors = RoadNetworks.GetNeighbors(nodeC.Location, distance + Radius);
+            //Debug.Assert(neighbors != null && neighbors.Any(n => n.Id == nodeC.Id));
+
+            return neighbors.Count == 0 ? 0 : 1.0 / neighbors.Count;
         }
     }
 }

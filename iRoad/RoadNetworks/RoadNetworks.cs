@@ -71,12 +71,12 @@ namespace iRoad
             tr.Close();
         }
 
-        private Dictionary<int, Tuple<int, int>> CreateEdgeCost(int Cost)
+        private Dictionary<int, Tuple<int, int>> CreateEdgeCost(int timeCost)
         {
             Dictionary<int, Tuple<int, int>> cost = new Dictionary<int, Tuple<int, int>>();
-            for (int i = 1; i <= 24; i++)
+            for (int i = 0; i < 24; i += 12)
             {
-                cost[i] = Tuple.Create(Cost, Cost);
+                cost[i] = Tuple.Create(timeCost, timeCost);
             }
 
             return cost;
@@ -197,10 +197,9 @@ namespace iRoad
         /// <param name="center">The origin node</param>
         /// <param name="rangeInKM">The range value in kilemeters. By default it's 0.2</param>
         /// <returns>The list of node in range</returns>
-        public virtual List<RoadNetworkNode> GetNeighbors(RoadNetworkNode center, double rangeInKM)
+        public virtual List<RoadNetworkNode> GetNeighbors(Coordinates c, double rangeInKM)
         {
             Dictionary<int, RoadNetworkNode> neighbors = new Dictionary<int, RoadNetworkNode>();
-            Coordinates c = new Coordinates(center.Location.Latitude, center.Location.Longitude);
             int cellid = Mapping(c);
 
             if (SpatialIndex.ContainsKey(cellid) == false)
@@ -228,7 +227,6 @@ namespace iRoad
 
             return neighbors.Select(p => p.Value).ToList();
         }
-
 
         int ReadNodes(string datafilepath, string nodesFilename)   //read the node data file
         {

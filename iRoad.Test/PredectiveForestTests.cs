@@ -32,7 +32,7 @@ namespace iRoad.PredictiveForestTest
             roots = new List<RoadNetworkNode>();
             mockRoadNetworks = new Mock<RoadNetworks>();
             mockRoadNetworks.Setup(m => m.Nearest(It.IsAny<double>(), It.IsAny<double>()));
-            mockRoadNetworks.Setup(m => m.GetNeighbors(It.IsAny<RoadNetworkNode>(), It.IsAny<double>())).
+            mockRoadNetworks.Setup(m => m.GetNeighbors(It.IsAny<Coordinates>(), It.IsAny<double>())).
                 Returns(roots);
             generatedTrees = new Dictionary<string, Dictionary<int, PredictiveTreeNode>>();
             pForest = new PredictiveForest(mockRoadNetworks.Object, timeRange, probabilityThreshold);
@@ -162,7 +162,7 @@ namespace iRoad.PredictiveForestTest
             Region region1 = new Region(new Coordinates(It.IsAny<double>(), It.IsAny<double>()), 0);
             RoadNetworkNode center1 = new RoadNetworkNode(0, region1.Center.Latitude, region1.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
             currentTest = "medium forest 2";
             pForest.Predict(region1);
 
@@ -197,8 +197,8 @@ namespace iRoad.PredictiveForestTest
             RoadNetworkNode center2 = new RoadNetworkNode(3, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
             currentTest = "medium forest";
             pForest.Predict(region1);
 
@@ -236,8 +236,8 @@ namespace iRoad.PredictiveForestTest
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
             currentTest = "simple forest";
             pForest.Predict(region1);
 
@@ -271,8 +271,8 @@ namespace iRoad.PredictiveForestTest
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
             currentTest = "simple forest";
             pForest.Predict(region1);
 
@@ -306,8 +306,8 @@ namespace iRoad.PredictiveForestTest
             RoadNetworkNode center2 = new RoadNetworkNode(7, region2.Center.Latitude, region2.Center.Longitude);
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
             currentTest = "simple forest";
             pForest.Predict(region1);
 
@@ -353,9 +353,9 @@ namespace iRoad.PredictiveForestTest
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
             mockRoadNetworks.Setup(m => m.Nearest(region3.Center.Latitude, region3.Center.Longitude)).Returns(center3);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center3, It.IsAny<double>())).Returns(roots3);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center3.Location, It.IsAny<double>())).Returns(roots3);
             currentTest = "medium forest";
             pForest.Predict(region1);
 
@@ -404,9 +404,9 @@ namespace iRoad.PredictiveForestTest
             mockRoadNetworks.Setup(m => m.Nearest(region1.Center.Latitude, region1.Center.Longitude)).Returns(center1);
             mockRoadNetworks.Setup(m => m.Nearest(region2.Center.Latitude, region2.Center.Longitude)).Returns(center2);
             mockRoadNetworks.Setup(m => m.Nearest(region3.Center.Latitude, region3.Center.Longitude)).Returns(center3);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center1, It.IsAny<double>())).Returns(roots1);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center2, It.IsAny<double>())).Returns(roots2);
-            mockRoadNetworks.Setup(m => m.GetNeighbors(center3, It.IsAny<double>())).Returns(roots3);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center1.Location, It.IsAny<double>())).Returns(roots1);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center2.Location, It.IsAny<double>())).Returns(roots2);
+            mockRoadNetworks.Setup(m => m.GetNeighbors(center3.Location, It.IsAny<double>())).Returns(roots3);
             currentTest = "medium forest 2";
 
             pForest.Predict(region1);
